@@ -5,6 +5,7 @@ import { DashboardContent } from "@/components/dashboard-content";
 import { getLocaleAndMessages } from "@/lib/i18n-server";
 import { getDir } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
+import { DashboardClientLayout } from "./dashboard-client-layout";
 
 export default async function DashboardLayout({
   children,
@@ -12,11 +13,13 @@ export default async function DashboardLayout({
   const { locale } = await getLocaleAndMessages();
   const dir = getDir(locale);
   return (
-    <Sidebar02 dir={dir}>
-      <DashboardHeader>
-        <DashboardHeaderActions currentLocale={locale as Locale} />
-      </DashboardHeader>
-      <DashboardContent>{children}</DashboardContent>
-    </Sidebar02>
+    <DashboardClientLayout>
+      <Sidebar02 dir={dir}>
+        <DashboardHeader>
+          <DashboardHeaderActions currentLocale={locale as Locale} />
+        </DashboardHeader>
+        <DashboardContent>{children}</DashboardContent>
+      </Sidebar02>
+    </DashboardClientLayout>
   );
 }
