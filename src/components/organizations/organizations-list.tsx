@@ -1,13 +1,48 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { organizationService } from "@/services/organization.service";
 import type { OrganizationMembership } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { CreateOrganizationForm } from "./create-organization-form";
 import { Plus, Eye, Pencil, Trash2 } from "lucide-react";
+
+function CreateOrganizationSheet({
+  open,
+  onOpenChange,
+  queryClient,
+}: Readonly<{
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  queryClient: QueryClient;
+}>) {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Create organization</SheetTitle>
+        </SheetHeader>
+        <CreateOrganizationForm
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["organizations"] });
+            onOpenChange(false);
+          }}
+          onCancel={() => onOpenChange(false)}
+        />
+      </SheetContent>
+    </Sheet>
+  );
+}
 
 function formatRole(role: string): string {
   if (role === "ADMIN") return "Admin";
@@ -21,6 +56,7 @@ function isAdmin(role: string): boolean {
 
 export function OrganizationsList() {
   const queryClient = useQueryClient();
+  const [createOpen, setCreateOpen] = useState(false);
   const {
     data: organizations = [],
     isLoading,
@@ -67,26 +103,46 @@ export function OrganizationsList() {
 
   if (organizations.length === 0) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-muted-foreground mb-4">No organizations yet</p>
-          <Button title="Coming in next step" aria-label="Create organization (form in next step)">
-            <Plus className="size-4" />
-            Create organization
-          </Button>
-        </CardContent>
-      </Card>
+      <>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-muted-foreground mb-4">No organizations yet</p>
+            <Button
+              title="Create organization"
+              aria-label="Create organization"
+              onClick={() => setCreateOpen(true)}
+            >
+              <Plus className="size-4" />
+              Create organization
+            </Button>
+          </CardContent>
+        </Card>
+        <CreateOrganizationSheet
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          queryClient={queryClient}
+        />
+      </>
     );
   }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button title="Coming in next step" aria-label="Create organization (form in next step)">
+        <Button
+          title="Create organization"
+          aria-label="Create organization"
+          onClick={() => setCreateOpen(true)}
+        >
           <Plus className="size-4" />
           Create organization
         </Button>
       </div>
+      <CreateOrganizationSheet
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        queryClient={queryClient}
+      />
       <Card>
         <CardHeader className="sr-only">
           <span>Organizations list</span>
