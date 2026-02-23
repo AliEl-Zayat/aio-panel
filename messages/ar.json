@@ -9,6 +9,7 @@
     "actions": "إجراءات",
     "save": "حفظ",
     "saving": "جاري الحفظ…",
+    "deleting": "جاري الحذف…",
     "creating": "جاري الإنشاء…",
     "nameRequired": "الاسم مطلوب.",
     "slugRequired": "المعرّف مطلوب.",

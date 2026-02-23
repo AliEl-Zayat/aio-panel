@@ -9,6 +9,7 @@
     "actions": "Actions",
     "save": "Save",
     "saving": "Saving…",
+    "deleting": "Deleting…",
     "creating": "Creating…",
     "nameRequired": "Name is required.",
     "slugRequired": "Slug is required.",

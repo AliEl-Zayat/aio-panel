@@ -17,6 +17,16 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
 const NAME_MAX_LENGTH = 200;
@@ -342,6 +352,8 @@ export function OrgProjectsTab({
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const {
@@ -376,18 +388,22 @@ export function OrgProjectsTab({
   const t = useTranslations("projects");
   const tCommon = useTranslations("common");
 
-  const handleDelete = async (project: Project) => {
-    const confirmed = globalThis.confirm(t("deleteConfirm", { name: project.name }));
-    if (!confirmed) return;
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
     setActionError(null);
+    setIsDeleting(true);
     try {
-      await projectService.remove(project.id);
+      await projectService.remove(deleteTarget.id);
       invalidateProjects();
+      setDeleteTarget(null);
     } catch (err) {
       const axiosError = err as AxiosError<{ error?: string }>;
       setActionError(
         axiosError.response?.data?.error ?? t("deleteError")
       );
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -440,6 +456,37 @@ export function OrgProjectsTab({
         </p>
       )}
 
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("delete")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget
+                ? t("deleteConfirm", { name: deleteTarget.name })
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              {tCommon("cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? tCommon("deleting") : t("delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {allOrgProjects.length === 0 ? (
         <p className="text-muted-foreground text-sm">{t("noProjectsYet")}</p>
       ) : (
@@ -484,7 +531,10 @@ export function OrgProjectsTab({
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDelete(project)}
+                        onClick={() => {
+                          setActionError(null);
+                          setDeleteTarget(project);
+                        }}
                         aria-label={`${t("delete")} ${project.name}`}
                       >
                         <Trash2 className="size-4" />

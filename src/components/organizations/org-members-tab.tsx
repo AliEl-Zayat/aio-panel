@@ -17,6 +17,16 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Plus, LogOut, UserMinus } from "lucide-react";
 
 const MEMBERS_QUERY_KEY = (orgId: number) =>
@@ -159,6 +169,8 @@ export function OrgMembersTab({
   const queryClient = useQueryClient();
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<{ userId: number; label: string } | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   const {
     data: members = [],
@@ -211,26 +223,28 @@ export function OrgMembersTab({
     }
   };
 
-  const handleRemoveMember = async (userId: number, label: string) => {
-    const confirmed = globalThis.confirm(t("removeMemberConfirm", { label }));
-    if (!confirmed) return;
+  const handleConfirmRemoveMember = async () => {
+    if (!removeTarget) return;
     setActionError(null);
+    setIsRemoving(true);
     try {
-      await organizationService.removeMember(organizationId, userId);
+      await organizationService.removeMember(organizationId, removeTarget.userId);
       invalidateMembers();
-      setActionError(null);
+      setRemoveTarget(null);
     } catch (err) {
       const axiosError = err as AxiosError<{ error?: string }>;
-      if (axiosError.response?.status === 400) {
-        const msg = axiosError.response?.data?.error;
-        if (msg?.toLowerCase().includes("last admin")) {
-          showLastAdminError();
-          return;
-        }
+      const status = axiosError.response?.status;
+      const msg = axiosError.response?.data?.error;
+      if (status === 400 && msg?.toLowerCase().includes("last admin")) {
+        showLastAdminError();
+      } else if (status === 404) {
+        setActionError(msg ?? t("failedToRemoveMember"));
+      } else {
+        setActionError(msg ?? t("failedToRemoveMember"));
       }
-      setActionError(
-        axiosError.response?.data?.error ?? t("failedToRemoveMember")
-      );
+      setRemoveTarget(null);
+    } finally {
+      setIsRemoving(false);
     }
   };
 
@@ -282,6 +296,37 @@ export function OrgMembersTab({
         </p>
       )}
 
+      <AlertDialog
+        open={!!removeTarget}
+        onOpenChange={(open) => !open && setRemoveTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("remove")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {removeTarget
+                ? t("removeMemberConfirm", { label: removeTarget.label })
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isRemoving}>
+              {tCommon("cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmRemoveMember();
+              }}
+              disabled={isRemoving}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isRemoving ? tCommon("deleting") : t("remove")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {members.length === 0 ? (
         <p className="text-muted-foreground text-sm">{t("noMembersYet")}</p>
       ) : (
@@ -330,7 +375,10 @@ export function OrgMembersTab({
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => handleRemoveMember(member.userId, label)}
+                              onClick={() => {
+                              setActionError(null);
+                              setRemoveTarget({ userId: member.userId, label });
+                            }}
                               aria-label={`${t("remove")} ${label}`}
                             >
                               <UserMinus className="size-4" />
@@ -343,9 +391,13 @@ export function OrgMembersTab({
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              handleRemoveMember(member.userId, "yourself")
-                            }
+                            onClick={() => {
+                              setActionError(null);
+                              setRemoveTarget({
+                                userId: member.userId,
+                                label: "yourself",
+                              });
+                            }}
                             aria-label={t("leaveOrg")}
                           >
                             <LogOut className="size-4" />

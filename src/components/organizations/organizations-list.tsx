@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import Link from "next/link";
 import { organizationService } from "@/services/organization.service";
 import type { OrganizationMembership } from "@/types/api";
@@ -16,6 +17,16 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { Plus, Eye, Pencil, Trash2 } from "lucide-react";
 
@@ -58,11 +69,16 @@ function isAdmin(role: string): boolean {
   return role === "ADMIN";
 }
 
+type DeleteTarget = { id: number; name: string } | null;
+
 export function OrganizationsList() {
   const t = useTranslations("organizations");
   const tCommon = useTranslations("common");
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const {
     data: organizations = [],
     isLoading,
@@ -74,15 +90,21 @@ export function OrganizationsList() {
     queryFn: () => organizationService.list(),
   });
 
-  async function handleRemove(id: number, name: string) {
-    const confirmed = globalThis.confirm(t("deleteConfirm", { name }));
-    if (!confirmed) return;
+  async function handleConfirmRemove() {
+    if (!deleteTarget) return;
+    setActionError(null);
+    setIsDeleting(true);
     try {
-      await organizationService.remove(id);
+      await organizationService.remove(deleteTarget.id);
       await queryClient.invalidateQueries({ queryKey: ["organizations"] });
+      setDeleteTarget(null);
     } catch (err) {
-      console.error("Failed to delete organization:", err);
-      globalThis.alert(t("deleteError"));
+      const axiosError = err as AxiosError<{ error?: string }>;
+      const message = axiosError.response?.data?.error ?? t("deleteError");
+      setActionError(message);
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -142,11 +164,46 @@ export function OrganizationsList() {
           {t("create")}
         </Button>
       </div>
+      {actionError && (
+        <p role="alert" className="text-sm text-destructive">
+          {actionError}
+        </p>
+      )}
       <CreateOrganizationSheet
         open={createOpen}
         onOpenChange={setCreateOpen}
         queryClient={queryClient}
       />
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("delete")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget
+                ? t("deleteConfirm", { name: deleteTarget.name })
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              {tCommon("cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmRemove();
+              }}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? tCommon("deleting") : t("delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <Card>
         <CardHeader className="sr-only">
           <span>{t("listTitle")}</span>
@@ -193,7 +250,10 @@ export function OrganizationsList() {
                               variant="ghost"
                               size="sm"
                               className="text-destructive hover:text-destructive"
-                              onClick={() => handleRemove(org.id, org.name)}
+                              onClick={() => {
+                                setActionError(null);
+                                setDeleteTarget({ id: org.id, name: org.name });
+                              }}
                             >
                               <Trash2 className="size-4" />
                               {t("delete")}
