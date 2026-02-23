@@ -1,0 +1,86 @@
+{
+  "common": {
+    "logout": "تسجيل الخروج",
+    "preferences": "التفضيلات"
+  },
+  "app": {
+    "title": "لوحة AIO",
+    "description": "لوحة التحكم والأدوات"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "home": "الرئيسية",
+    "apiReporter": "مُبلّغ API",
+    "commandSnippets": "أوامر وسنابات",
+    "emailTemplater": "قوالب البريد",
+    "knowledgeArea": "منطقة المعرفة",
+    "topicResearch": "بحث المواضيع",
+    "musicBookmarker": "الموسيقى المحفوظة",
+    "financeHelper": "مساعد المالية",
+    "sideBudget": "ميزانية جانبية",
+    "ciCdPipelines": "أنابيب CI/CD",
+    "secretKeys": "المفاتيح السرية",
+    "secretAccounts": "الحسابات السرية",
+    "settings": "الإعدادات",
+    "preferences": "التفضيلات"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "logout": "تسجيل الخروج",
+    "welcome": "مرحباً"
+  },
+  "login": {
+    "title": "تسجيل الدخول",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "submit": "دخول"
+  },
+  "apiReporter": {
+    "endpoint": "المسار / الرابط",
+    "method": "الطريقة",
+    "environment": "البيئة",
+    "environmentPlaceholder": "اختر البيئة (اختياري)",
+    "contentIsJson": "المحتوى JSON",
+    "contentType": "نوع المحتوى",
+    "requestPayload": "هيكل الطلب (اختياري)",
+    "requestPayloadPlaceholder": "هيكل الطلب",
+    "expectedOptional": "المتوقّع (اختياري)",
+    "expectedPlaceholder": "استجابة أو سلوك متوقّع",
+    "actualResponse": "الفِعلي (الاستجابة)",
+    "actualPlaceholder": "الاستجابة الفعلية",
+    "preview": "معاينة",
+    "copyMarkdown": "نسخ Markdown",
+    "copied": "تم النسخ!",
+    "copyError": "فشل النسخ"
+  },
+  "locale": {
+    "en": "English",
+    "ar": "العربية",
+    "switch": "اللغة"
+  },
+  "preferences": {
+    "title": "التفضيلات",
+    "description": "تخصيص تخطيط لوحة التحكم.",
+    "storageNote": "التفضيلات تُحفظ في قاعدة البيانات عند تسجيل الدخول.",
+    "themePreset": "سمة الواجهة",
+    "fonts": "الخطوط",
+    "themeMode": "وضع السمة",
+    "themeModeLight": "فاتح",
+    "themeModeDark": "داكن",
+    "themeModeSystem": "النظام",
+    "pageLayout": "تخطيط الصفحة",
+    "pageLayoutCentered": "مركّز",
+    "pageLayoutFullWidth": "عرض كامل",
+    "navbarBehavior": "شريط التنقل",
+    "navbarSticky": "ثابت",
+    "navbarScroll": "مع التمرير",
+    "sidebarStyle": "نمط الشريط الجانبي",
+    "sidebarInset": "داخلي",
+    "sidebarSidebar": "جانبي",
+    "sidebarFloating": "عائم",
+    "sidebarCollapseMode": "وضع الطي",
+    "collapseIcon": "أيقونة",
+    "collapseOffCanvas": "خارج اللوحة",
+    "restoreDefaults": "استعادة الافتراضي"
+  }
+}

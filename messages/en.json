@@ -1,0 +1,86 @@
+{
+  "common": {
+    "logout": "Log out",
+    "preferences": "Preferences"
+  },
+  "app": {
+    "title": "AIO Panel",
+    "description": "Dashboard and tools"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "home": "Home",
+    "apiReporter": "API Reporter",
+    "commandSnippets": "Command Snippets",
+    "emailTemplater": "Email Templater",
+    "knowledgeArea": "Knowledge Area",
+    "topicResearch": "Topic Research",
+    "musicBookmarker": "Music Bookmarker",
+    "financeHelper": "Finance Helper",
+    "sideBudget": "Side Budget",
+    "ciCdPipelines": "CI/CD Pipelines",
+    "secretKeys": "Secret Keys",
+    "secretAccounts": "Secret Accounts",
+    "settings": "Settings",
+    "preferences": "Preferences"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "logout": "Log out",
+    "welcome": "Welcome"
+  },
+  "login": {
+    "title": "Log in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Log in"
+  },
+  "apiReporter": {
+    "endpoint": "Endpoint / URL",
+    "method": "Method",
+    "environment": "Environment",
+    "environmentPlaceholder": "Select environment (optional)",
+    "contentIsJson": "Content is JSON",
+    "contentType": "Content type",
+    "requestPayload": "Request payload (optional)",
+    "requestPayloadPlaceholder": "Request body",
+    "expectedOptional": "Expected (optional)",
+    "expectedPlaceholder": "Expected response or behavior",
+    "actualResponse": "Actual (Response)",
+    "actualPlaceholder": "Actual response",
+    "preview": "Preview",
+    "copyMarkdown": "Copy markdown",
+    "copied": "Copied!",
+    "copyError": "Copy failed"
+  },
+  "locale": {
+    "en": "English",
+    "ar": "العربية",
+    "switch": "Language"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "description": "Customize your dashboard layout preferences.",
+    "storageNote": "Preferences use the database when signed in.",
+    "themePreset": "Theme Preset",
+    "fonts": "Fonts",
+    "themeMode": "Theme Mode",
+    "themeModeLight": "Light",
+    "themeModeDark": "Dark",
+    "themeModeSystem": "System",
+    "pageLayout": "Page Layout",
+    "pageLayoutCentered": "Centered",
+    "pageLayoutFullWidth": "Full Width",
+    "navbarBehavior": "Navbar Behavior",
+    "navbarSticky": "Sticky",
+    "navbarScroll": "Scroll",
+    "sidebarStyle": "Sidebar Style",
+    "sidebarInset": "Inset",
+    "sidebarSidebar": "Sidebar",
+    "sidebarFloating": "Floating",
+    "sidebarCollapseMode": "Sidebar Collapse Mode",
+    "collapseIcon": "Icon",
+    "collapseOffCanvas": "OffCanvas",
+    "restoreDefaults": "Restore Defaults"
+  }
+}
