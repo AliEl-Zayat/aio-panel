@@ -40,6 +40,12 @@ export interface OrganizationMember {
   };
 }
 
+/** Response from POST /api/organizations/:id/members (add member). */
+export interface AddOrganizationMemberResponse {
+  userId: number;
+  role: string;
+}
+
 /** Project shape from GET/POST/PATCH /api/projects. */
 export interface Project {
   id: number;
