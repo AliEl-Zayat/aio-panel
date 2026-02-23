@@ -155,12 +155,6 @@ function useDashboardRoutes(): Route[] {
   ];
 }
 
-const teams = [
-  { id: "1", name: "Alpha Inc.", logo: Logo, plan: "Free" },
-  { id: "2", name: "Beta Corp.", logo: Logo, plan: "Free" },
-  { id: "3", name: "Gamma Tech", logo: Logo, plan: "Free" },
-];
-
 type SidebarSide = "left" | "right";
 
 const SIDEBAR_VARIANT_MAP = {
@@ -222,7 +216,7 @@ export function DashboardSidebar({
         <DashboardNavigation routes={dashboardRoutes} />
       </SidebarContent>
       <SidebarFooter className="px-2">
-        <TeamSwitcher teams={teams} />
+        <TeamSwitcher />
       </SidebarFooter>
     </Sidebar>
   );

@@ -6,7 +6,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -15,22 +14,49 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { ChevronsUpDown, Plus } from "lucide-react";
-import * as React from "react";
+import { useCurrentOrg } from "@/contexts/current-org-context";
+import { organizationService } from "@/services/organization.service";
+import { useQuery } from "@tanstack/react-query";
+import { Building2, ChevronsUpDown, Plus, User } from "lucide-react";
+import Link from "next/link";
 
-type Team = {
-  name: string;
-  logo: React.ElementType;
-  plan: string;
-};
+type Option = { value: number | null; label: string };
 
-export function TeamSwitcher({ teams }: { teams: Team[] }) {
+function getOptions(orgs: { id: number; name: string }[]): Option[] {
+  const personal: Option = { value: null, label: "Personal" };
+  const orgOptions: Option[] = orgs.map((o) => ({ value: o.id, label: o.name }));
+  return [personal, ...orgOptions];
+}
+
+function getSelectedLabel(
+  currentOrganizationId: number | null,
+  options: Option[]
+): string {
+  const option = options.find((o) => o.value === currentOrganizationId);
+  return option?.label ?? "Personal";
+}
+
+function getSelectedIcon(currentOrganizationId: number | null) {
+  return currentOrganizationId === null ? User : Building2;
+}
+
+export function TeamSwitcher() {
   const { isMobile } = useSidebar();
-  const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+  const { currentOrganizationId, setCurrentOrganizationId } = useCurrentOrg();
 
-  if (!activeTeam) return null;
+  const {
+    data: orgs = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["organizations"],
+    queryFn: () => organizationService.list(),
+  });
 
-  const Logo = activeTeam.logo;
+  const options = getOptions(orgs);
+  const selectedLabel = getSelectedLabel(currentOrganizationId, options);
+  const SelectedIcon = getSelectedIcon(currentOrganizationId);
 
   return (
     <SidebarMenu>
@@ -42,13 +68,23 @@ export function TeamSwitcher({ teams }: { teams: Team[] }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-background text-foreground">
-                <Logo className="size-4" />
+                {isLoading ? (
+                  <span className="size-4 animate-pulse rounded bg-muted" />
+                ) : (
+                  <SelectedIcon className="size-4" />
+                )}
               </div>
               <div className="grid flex-1 text-start text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {activeTeam.name}
+                  {isLoading ? (
+                    <span className="inline-block h-4 w-20 animate-pulse rounded bg-muted" />
+                  ) : (
+                    selectedLabel
+                  )}
                 </span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {currentOrganizationId === null ? "Personal account" : "Organization"}
+                </span>
               </div>
               <ChevronsUpDown className="ms-auto" />
             </SidebarMenuButton>
@@ -60,27 +96,52 @@ export function TeamSwitcher({ teams }: { teams: Team[] }) {
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Teams
+              Switch context
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {isError ? (
               <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
-                className="gap-2 p-2"
+                className="gap-2 p-2 text-muted-foreground"
+                onSelect={(e) => e.preventDefault()}
               >
-                <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <team.logo className="size-4 shrink-0" />
-                </div>
-                {team.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                <span className="text-xs">Could not load organizations.</span>
+                <button
+                  type="button"
+                  className="text-xs underline focus:outline-none focus:ring-2 focus:ring-ring"
+                  onClick={() => refetch()}
+                >
+                  Retry
+                </button>
               </DropdownMenuItem>
-            ))}
+            ) : (
+              options.map((opt) => {
+                const Icon = opt.value === null ? User : Building2;
+                return (
+                  <DropdownMenuItem
+                    key={opt.value ?? "personal"}
+                    onClick={() => setCurrentOrganizationId(opt.value)}
+                    className="gap-2 p-2"
+                  >
+                    <div className="flex size-6 items-center justify-center rounded-sm border">
+                      <Icon className="size-4 shrink-0" />
+                    </div>
+                    {opt.label}
+                  </DropdownMenuItem>
+                );
+              })
+            )}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                <Plus className="size-4" />
-              </div>
-              <div className="font-medium text-muted-foreground">Add team</div>
+            <DropdownMenuItem asChild>
+              <Link
+                href="/dashboard/organizations"
+                className="flex gap-2 p-2 focus:bg-accent focus:text-accent-foreground"
+              >
+                <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                  <Plus className="size-4" />
+                </div>
+                <span className="font-medium text-muted-foreground">
+                  Add organization
+                </span>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
