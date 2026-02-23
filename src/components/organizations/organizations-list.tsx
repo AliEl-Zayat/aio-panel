@@ -70,7 +70,7 @@ export function OrganizationsList() {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12 text-center">
           <p className="text-muted-foreground mb-4">No organizations yet</p>
-          <Button>
+          <Button title="Coming in next step" aria-label="Create organization (form in next step)">
             <Plus className="size-4" />
             Create organization
           </Button>
@@ -82,7 +82,7 @@ export function OrganizationsList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button>
+        <Button title="Coming in next step" aria-label="Create organization (form in next step)">
           <Plus className="size-4" />
           Create organization
         </Button>
