@@ -40,7 +40,11 @@ function getCurrentOrgIdFromCookie(): number | null {
 
 function setCurrentOrgIdCookie(id: number | null): void {
   if (typeof document === "undefined") return;
-  const value = id === null ? "" : encodeURIComponent(String(id));
+  if (id === null) {
+    document.cookie = `${CURRENT_ORG_ID_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
+    return;
+  }
+  const value = encodeURIComponent(String(id));
   document.cookie = `${CURRENT_ORG_ID_COOKIE_NAME}=${value}; path=/; max-age=${CURRENT_ORG_ID_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
 }
 
