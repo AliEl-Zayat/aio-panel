@@ -190,6 +190,7 @@ export function OrgMembersTab({
         role: newRole,
       });
       invalidateMembers();
+      setActionError(null);
     } catch (err) {
       const axiosError = err as AxiosError<{ error?: string }>;
       if (axiosError.response?.status === 400) {
@@ -215,6 +216,7 @@ export function OrgMembersTab({
     try {
       await organizationService.removeMember(organizationId, userId);
       invalidateMembers();
+      setActionError(null);
     } catch (err) {
       const axiosError = err as AxiosError<{ error?: string }>;
       if (axiosError.response?.status === 400) {
@@ -285,9 +287,9 @@ export function OrgMembersTab({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left">
-                <th className="pb-2 pr-4 font-medium">Name / Email</th>
-                <th className="pb-2 pr-4 font-medium">Role</th>
-                <th className="pb-2 font-medium">Actions</th>
+                <th scope="col" className="pb-2 pr-4 font-medium">Name / Email</th>
+                <th scope="col" className="pb-2 pr-4 font-medium">Role</th>
+                <th scope="col" className="pb-2 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
