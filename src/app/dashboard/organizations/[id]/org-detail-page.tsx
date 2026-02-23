@@ -1,28 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { organizationService } from "@/services/organization.service";
+import { OrgNotFoundView } from "@/components/organizations/org-not-found-view";
 import { OrgDetailTabs } from "@/components/organizations/org-detail-tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-
-function NotFoundView() {
-  return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-medium">Organization not found</h2>
-      <p className="text-muted-foreground">
-        The organization may have been removed or you do not have access.
-      </p>
-      <Link
-        href="/dashboard/organizations"
-        className="text-primary hover:underline font-medium"
-      >
-        ← Back to organizations
-      </Link>
-    </div>
-  );
-}
 
 export function OrgDetailPage({ id }: { id: number }) {
   const {
@@ -61,7 +44,7 @@ export function OrgDetailPage({ id }: { id: number }) {
       ? (orgErr as { response?: { status?: number } }).response?.status
       : undefined;
     if (status === 404) {
-      return <NotFoundView />;
+      return <OrgNotFoundView />;
     }
     return (
       <div className="space-y-4">
@@ -80,7 +63,7 @@ export function OrgDetailPage({ id }: { id: number }) {
   }
 
   if (!org) {
-    return <NotFoundView />;
+    return <OrgNotFoundView />;
   }
 
   return (
