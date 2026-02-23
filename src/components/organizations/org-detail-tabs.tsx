@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { organizationService } from "@/services/organization.service";
 import type { Organization } from "@/types/api";
 import { OrgMembersTab } from "@/components/organizations/org-members-tab";
+import { OrgProjectsTab } from "@/components/organizations/org-projects-tab";
 import { SegmentControl } from "@/components/ui/segment-control";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -191,11 +192,6 @@ function DetailsTabContent({
   );
 }
 
-function ProjectsTabPlaceholder() {
-  return (
-    <p className="text-muted-foreground text-sm">Projects tab — coming soon.</p>
-  );
-}
 
 export function OrgDetailTabs({
   organization,
@@ -254,7 +250,12 @@ export function OrgDetailTabs({
               currentUserId={currentUserId}
             />
           )}
-          {tab === "projects" && <ProjectsTabPlaceholder />}
+          {tab === "projects" && (
+            <OrgProjectsTab
+              organizationId={organizationId}
+              orgName={organization.name}
+            />
+          )}
         </CardContent>
       </Card>
     </div>
