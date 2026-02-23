@@ -150,6 +150,7 @@ export function ProjectsList() {
           aria-label={t("create")}
           onClick={() => {
             setActionError(null);
+            setEditingProject(null);
             setCreateSheetOpen(true);
           }}
         >
@@ -173,6 +174,7 @@ export function ProjectsList() {
               aria-label={t("create")}
               onClick={() => {
                 setActionError(null);
+                setEditingProject(null);
                 setCreateSheetOpen(true);
               }}
             >
@@ -217,6 +219,7 @@ export function ProjectsList() {
                             size="sm"
                             onClick={() => {
                               setActionError(null);
+                              setCreateSheetOpen(false);
                               setEditingProject(project);
                             }}
                             aria-label={`${t("edit")} ${project.name}`}
