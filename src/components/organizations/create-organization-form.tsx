@@ -26,6 +26,7 @@ export function CreateOrganizationForm({
   const [slug, setSlug] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
   const [slugError, setSlugError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateName = useCallback((value: string): string | null => {
@@ -68,6 +69,7 @@ export function CreateOrganizationForm({
 
     setIsSubmitting(true);
     setSlugError(null);
+    setSubmitError(null);
     try {
       const organization = await organizationService.create({
         name: trimmedName,
@@ -81,10 +83,10 @@ export function CreateOrganizationForm({
           axiosError.response?.data?.error ?? "This slug is already taken.";
         setSlugError(message);
       } else {
-        setSlugError(
+        const message =
           axiosError.response?.data?.error ??
-            (axiosError instanceof Error ? axiosError.message : "Failed to create organization.")
-        );
+          (axiosError instanceof Error ? axiosError.message : "Failed to create organization.");
+        setSubmitError(message);
       }
     } finally {
       setIsSubmitting(false);
@@ -93,6 +95,11 @@ export function CreateOrganizationForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {submitError && (
+        <p role="alert" className="text-sm text-destructive">
+          {submitError}
+        </p>
+      )}
       <div className="space-y-2">
         <Label htmlFor="create-org-name">Name</Label>
         <Input

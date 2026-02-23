@@ -13,6 +13,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { Plus, Eye, Pencil, Trash2 } from "lucide-react";
@@ -31,6 +32,9 @@ function CreateOrganizationSheet({
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Create organization</SheetTitle>
+          <SheetDescription>
+            Add a new organization. Name and URL-friendly slug are required.
+          </SheetDescription>
         </SheetHeader>
         <CreateOrganizationForm
           onSuccess={() => {
