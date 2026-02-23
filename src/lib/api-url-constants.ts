@@ -13,4 +13,15 @@ export const ApiUrlConstants = {
   USERS_ME_PREFERENCES: "/api/users/me/preferences",
   /** User settings (preferences) — GET / PATCH */
   SETTINGS: "/api/settings",
+
+  /** Organizations — list + create */
+  ORGANIZATIONS: "/api/organizations",
+  ORGANIZATION_BY_ID: (id: number) => `/api/organizations/${id}`,
+  ORGANIZATION_MEMBERS: (id: number) => `/api/organizations/${id}/members`,
+  ORGANIZATION_MEMBER: (orgId: number, userId: number) =>
+    `/api/organizations/${orgId}/members/${userId}`,
+
+  /** Projects — list + create; query ?scope= */
+  PROJECTS: "/api/projects",
+  PROJECT_BY_ID: (id: number) => `/api/projects/${id}`,
 } as const;
