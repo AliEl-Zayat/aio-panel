@@ -1,17 +1,19 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function OrgNotFoundView() {
+  const t = useTranslations("organizations");
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-medium">Organization not found</h2>
-      <p className="text-muted-foreground">
-        The organization may have been removed or you do not have access.
-      </p>
+      <h2 className="text-xl font-medium">{t("notFound")}</h2>
+      <p className="text-muted-foreground">{t("notFoundDescription")}</p>
       <Link
         href="/dashboard/organizations"
         className="text-primary hover:underline font-medium"
       >
-        ← Back to organizations
+        {t("backToOrganizations")}
       </Link>
     </div>
   );

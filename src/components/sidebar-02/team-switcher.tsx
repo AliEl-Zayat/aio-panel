@@ -20,21 +20,23 @@ import { useQuery } from "@tanstack/react-query";
 import { Building2, ChevronsUpDown, Plus, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 type Option = { value: number | null; label: string };
 
-function getOptions(orgs: { id: number; name: string }[]): Option[] {
-  const personal: Option = { value: null, label: "Personal" };
+function getOptions(orgs: { id: number; name: string }[], personalLabel: string): Option[] {
+  const personal: Option = { value: null, label: personalLabel };
   const orgOptions: Option[] = orgs.map((o) => ({ value: o.id, label: o.name }));
   return [personal, ...orgOptions];
 }
 
 function getSelectedLabel(
   currentOrganizationId: number | null,
-  options: Option[]
+  options: Option[],
+  personalLabel: string
 ): string {
   const option = options.find((o) => o.value === currentOrganizationId);
-  return option?.label ?? "Personal";
+  return option?.label ?? personalLabel;
 }
 
 function getSelectedIcon(currentOrganizationId: number | null) {
@@ -42,6 +44,8 @@ function getSelectedIcon(currentOrganizationId: number | null) {
 }
 
 export function TeamSwitcher() {
+  const t = useTranslations("organizations");
+  const tCommon = useTranslations("common");
   const { isMobile } = useSidebar();
   const { currentOrganizationId, setCurrentOrganizationId } = useCurrentOrg();
 
@@ -55,8 +59,9 @@ export function TeamSwitcher() {
     queryFn: () => organizationService.list(),
   });
 
-  const options = getOptions(orgs);
-  const selectedLabel = getSelectedLabel(currentOrganizationId, options);
+  const personalLabel = t("personal");
+  const options = getOptions(orgs, personalLabel);
+  const selectedLabel = getSelectedLabel(currentOrganizationId, options, personalLabel);
   const SelectedIcon = getSelectedIcon(currentOrganizationId);
 
   // Sync context when current org is no longer in the list (e.g. user left the org)
@@ -95,7 +100,7 @@ export function TeamSwitcher() {
                   )}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {currentOrganizationId === null ? "Personal account" : "Organization"}
+                  {currentOrganizationId === null ? t("personalAccount") : t("organization")}
                 </span>
               </div>
               <ChevronsUpDown className="ms-auto" />
@@ -108,20 +113,20 @@ export function TeamSwitcher() {
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Switch context
+              {t("switchContext")}
             </DropdownMenuLabel>
             {isError ? (
               <DropdownMenuItem
                 className="gap-2 p-2 text-muted-foreground"
                 onSelect={(e) => e.preventDefault()}
               >
-                <span className="text-xs">Could not load organizations.</span>
+                <span className="text-xs">{t("loadOrgsError")}</span>
                 <button
                   type="button"
                   className="text-xs underline focus:outline-none focus:ring-2 focus:ring-ring"
                   onClick={() => refetch()}
                 >
-                  Retry
+                  {tCommon("retry")}
                 </button>
               </DropdownMenuItem>
             ) : (
@@ -151,7 +156,7 @@ export function TeamSwitcher() {
                   <Plus className="size-4" />
                 </div>
                 <span className="font-medium text-muted-foreground">
-                  Add organization
+                  {t("addOrganization")}
                 </span>
               </Link>
             </DropdownMenuItem>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { projectService } from "@/services/project.service";
@@ -30,27 +31,35 @@ export interface OrgProjectsTabProps {
   orgName?: string;
 }
 
-function validateName(value: string): string | null {
-  if (!value.trim()) return "Name is required.";
-  if (value.length > NAME_MAX_LENGTH)
-    return `Name must be at most ${NAME_MAX_LENGTH} characters.`;
-  return null;
+function getValidateName(tCommon: ReturnType<typeof useTranslations<"common">>) {
+  return (value: string): string | null => {
+    if (!value.trim()) return tCommon("nameRequired");
+    if (value.length > NAME_MAX_LENGTH)
+      return tCommon("nameMaxLength", { max: NAME_MAX_LENGTH });
+    return null;
+  };
 }
 
-function validateSlug(value: string): string | null {
-  if (!value.trim()) return "Slug is required.";
-  if (value.length > SLUG_MAX_LENGTH)
-    return `Slug must be at most ${SLUG_MAX_LENGTH} characters.`;
-  if (!SLUG_REGEX.test(value))
-    return "Slug must be lowercase letters, numbers, and hyphens only (e.g. my-project).";
-  return null;
+function getValidateSlug(tCommon: ReturnType<typeof useTranslations<"common">>, tProjects: ReturnType<typeof useTranslations<"projects">>) {
+  return (value: string): string | null => {
+    if (!value.trim()) return tCommon("slugRequired");
+    if (value.length > SLUG_MAX_LENGTH)
+      return tCommon("slugMaxLength", { max: SLUG_MAX_LENGTH });
+    if (!SLUG_REGEX.test(value)) return tProjects("slugInvalid");
+    return null;
+  };
 }
 
 function normalizeSlugInput(value: string): string {
   return value.toLowerCase().replaceAll(/\s+/g, "-");
 }
 
-function useProjectNameSlugFields(initialName: string, initialSlug: string) {
+function useProjectNameSlugFields(
+  initialName: string,
+  initialSlug: string,
+  validateNameFn: (v: string) => string | null,
+  validateSlugFn: (v: string) => string | null
+) {
   const [name, setName] = useState(initialName);
   const [slug, setSlug] = useState(initialSlug);
   const [nameError, setNameError] = useState<string | null>(null);
@@ -60,18 +69,18 @@ function useProjectNameSlugFields(initialName: string, initialSlug: string) {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       setName(value);
-      setNameError(validateName(value));
+      setNameError(validateNameFn(value));
     },
-    []
+    [validateNameFn]
   );
 
   const handleSlugChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = normalizeSlugInput(e.target.value);
       setSlug(value);
-      setSlugError(validateSlug(value));
+      setSlugError(validateSlugFn(value));
     },
-    []
+    [validateSlugFn]
   );
 
   const setErrors = useCallback(
@@ -104,7 +113,11 @@ function CreateProjectForm({
   onSuccess: () => void;
   onCancel: () => void;
 }>) {
-  const fields = useProjectNameSlugFields("", "");
+  const t = useTranslations("projects");
+  const tCommon = useTranslations("common");
+  const validateNameFn = useCallback(getValidateName(tCommon), [tCommon]);
+  const validateSlugFn = useCallback(getValidateSlug(tCommon, t), [tCommon, t]);
+  const fields = useProjectNameSlugFields("", "", validateNameFn, validateSlugFn);
   const { name, slug, nameError, slugError, setErrors, handleNameChange, handleSlugChange } =
     fields;
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -114,8 +127,8 @@ function CreateProjectForm({
     e.preventDefault();
     const trimmedName = name.trim();
     const trimmedSlug = slug.trim();
-    const nErr = validateName(trimmedName);
-    const sErr = validateSlug(trimmedSlug);
+    const nErr = validateNameFn(trimmedName);
+    const sErr = validateSlugFn(trimmedSlug);
     setErrors(nErr, sErr);
     setSubmitError(null);
     if (nErr ?? sErr) return;
@@ -133,12 +146,12 @@ function CreateProjectForm({
       if (axiosError.response?.status === 409) {
         setErrors(
           null,
-          axiosError.response?.data?.error ?? "This slug is already taken."
+          axiosError.response?.data?.error ?? t("slugTaken")
         );
       } else {
         setSubmitError(
           axiosError.response?.data?.error ??
-            (axiosError instanceof Error ? axiosError.message : "Failed to create project.")
+            (axiosError instanceof Error ? axiosError.message : t("createError"))
         );
       }
     } finally {
@@ -154,7 +167,7 @@ function CreateProjectForm({
         </p>
       )}
       <div className="space-y-2">
-        <Label htmlFor="create-project-name">Name</Label>
+        <Label htmlFor="create-project-name">{tCommon("name")}</Label>
         <Input
           id="create-project-name"
           value={name}
@@ -175,7 +188,7 @@ function CreateProjectForm({
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="create-project-slug">Slug</Label>
+        <Label htmlFor="create-project-slug">{tCommon("slug")}</Label>
         <Input
           id="create-project-slug"
           value={slug}
@@ -197,10 +210,10 @@ function CreateProjectForm({
       </div>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Creating…" : "Create project"}
+          {isSubmitting ? tCommon("creating") : t("createProject")}
         </Button>
       </div>
     </form>
@@ -216,7 +229,11 @@ function EditProjectForm({
   onSuccess: () => void;
   onCancel: () => void;
 }>) {
-  const fields = useProjectNameSlugFields(project.name, project.slug);
+  const t = useTranslations("projects");
+  const tCommon = useTranslations("common");
+  const validateNameFn = useCallback(getValidateName(tCommon), [tCommon]);
+  const validateSlugFn = useCallback(getValidateSlug(tCommon, t), [tCommon, t]);
+  const fields = useProjectNameSlugFields(project.name, project.slug, validateNameFn, validateSlugFn);
   const { name, slug, nameError, slugError, setErrors, handleNameChange, handleSlugChange } =
     fields;
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -226,8 +243,8 @@ function EditProjectForm({
     e.preventDefault();
     const trimmedName = name.trim();
     const trimmedSlug = slug.trim();
-    const nErr = validateName(trimmedName);
-    const sErr = validateSlug(trimmedSlug);
+    const nErr = validateNameFn(trimmedName);
+    const sErr = validateSlugFn(trimmedSlug);
     setErrors(nErr, sErr);
     setSubmitError(null);
     if (nErr ?? sErr) return;
@@ -244,12 +261,12 @@ function EditProjectForm({
       if (axiosError.response?.status === 409) {
         setErrors(
           null,
-          axiosError.response?.data?.error ?? "This slug is already taken."
+          axiosError.response?.data?.error ?? t("slugTaken")
         );
       } else {
         setSubmitError(
           axiosError.response?.data?.error ??
-            (axiosError instanceof Error ? axiosError.message : "Failed to update project.")
+            (axiosError instanceof Error ? axiosError.message : t("updateError"))
         );
       }
     } finally {
@@ -265,7 +282,7 @@ function EditProjectForm({
         </p>
       )}
       <div className="space-y-2">
-        <Label htmlFor="edit-project-name">Name</Label>
+        <Label htmlFor="edit-project-name">{tCommon("name")}</Label>
         <Input
           id="edit-project-name"
           value={name}
@@ -286,7 +303,7 @@ function EditProjectForm({
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="edit-project-slug">Slug</Label>
+        <Label htmlFor="edit-project-slug">{tCommon("slug")}</Label>
         <Input
           id="edit-project-slug"
           value={slug}
@@ -308,10 +325,10 @@ function EditProjectForm({
       </div>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Save"}
+          {isSubmitting ? tCommon("saving") : tCommon("save")}
         </Button>
       </div>
     </form>
@@ -356,10 +373,11 @@ export function OrgProjectsTab({
     setEditingProject(null);
   }, [invalidateProjects]);
 
+  const t = useTranslations("projects");
+  const tCommon = useTranslations("common");
+
   const handleDelete = async (project: Project) => {
-    const confirmed = globalThis.confirm(
-      `Are you sure you want to delete the project "${project.name}"? This cannot be undone.`
-    );
+    const confirmed = globalThis.confirm(t("deleteConfirm", { name: project.name }));
     if (!confirmed) return;
     setActionError(null);
     try {
@@ -368,7 +386,7 @@ export function OrgProjectsTab({
     } catch (err) {
       const axiosError = err as AxiosError<{ error?: string }>;
       setActionError(
-        axiosError.response?.data?.error ?? "Failed to delete project."
+        axiosError.response?.data?.error ?? t("deleteError")
       );
     }
   };
@@ -387,10 +405,10 @@ export function OrgProjectsTab({
     return (
       <div className="space-y-2">
         <p className="text-destructive">
-          {error instanceof Error ? error.message : "Failed to load projects."}
+          {error instanceof Error ? error.message : t("loadError")}
         </p>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Retry
+          {tCommon("retry")}
         </Button>
       </div>
     );
@@ -400,7 +418,7 @@ export function OrgProjectsTab({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-medium">
-          Projects{orgName ? ` in ${orgName}` : ""}
+          {orgName ? t("projectsInOrg", { orgName }) : t("heading")}
         </h3>
         <Button
           type="button"
@@ -409,10 +427,10 @@ export function OrgProjectsTab({
             setActionError(null);
             setCreateOpen(true);
           }}
-          aria-label="Create project"
+          aria-label={t("create")}
         >
           <Plus className="size-4" />
-          Create project
+          {t("create")}
         </Button>
       </div>
 
@@ -423,20 +441,20 @@ export function OrgProjectsTab({
       )}
 
       {allOrgProjects.length === 0 ? (
-        <p className="text-muted-foreground text-sm">No projects yet.</p>
+        <p className="text-muted-foreground text-sm">{t("noProjectsYet")}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left">
                 <th scope="col" className="pb-2 pr-4 font-medium">
-                  Name
+                  {tCommon("name")}
                 </th>
                 <th scope="col" className="pb-2 pr-4 font-medium">
-                  Slug
+                  {tCommon("slug")}
                 </th>
                 <th scope="col" className="pb-2 font-medium">
-                  Actions
+                  {tCommon("actions")}
                 </th>
               </tr>
             </thead>
@@ -457,20 +475,20 @@ export function OrgProjectsTab({
                           setActionError(null);
                           setEditingProject(project);
                         }}
-                        aria-label={`Edit ${project.name}`}
+                        aria-label={`${t("edit")} ${project.name}`}
                       >
                         <Pencil className="size-4" />
-                        Edit
+                        {t("edit")}
                       </Button>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(project)}
-                        aria-label={`Delete ${project.name}`}
+                        aria-label={`${t("delete")} ${project.name}`}
                       >
                         <Trash2 className="size-4" />
-                        Delete
+                        {t("delete")}
                       </Button>
                     </div>
                   </td>
@@ -484,10 +502,8 @@ export function OrgProjectsTab({
       <Sheet open={createOpen} onOpenChange={setCreateOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Create project</SheetTitle>
-            <SheetDescription>
-              Add a new project to this organization. Slug must be unique.
-            </SheetDescription>
+            <SheetTitle>{t("orgSheetTitle")}</SheetTitle>
+            <SheetDescription>{t("orgSheetDescription")}</SheetDescription>
           </SheetHeader>
           <CreateProjectForm
             organizationId={organizationId}
@@ -503,10 +519,8 @@ export function OrgProjectsTab({
       >
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Edit project</SheetTitle>
-            <SheetDescription>
-              Update the project name and slug. Slug must be unique.
-            </SheetDescription>
+            <SheetTitle>{t("editSheetTitle")}</SheetTitle>
+            <SheetDescription>{t("editSheetDescription")}</SheetDescription>
           </SheetHeader>
           {editingProject && (
             <EditProjectForm

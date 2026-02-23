@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { organizationService } from "@/services/organization.service";
@@ -18,7 +19,6 @@ import {
 } from "@/components/ui/sheet";
 import { Plus, LogOut, UserMinus } from "lucide-react";
 
-const LAST_ADMIN_MESSAGE = "Cannot remove or demote the last admin.";
 const MEMBERS_QUERY_KEY = (orgId: number) =>
   ["organization", orgId, "members"] as const;
 
@@ -28,9 +28,9 @@ export interface OrgMembersTabProps {
   currentUserId: number | null;
 }
 
-function formatRole(role: string): string {
-  if (role === "ADMIN") return "Admin";
-  if (role === "MEMBER") return "Member";
+function formatRole(role: string, t: ReturnType<typeof useTranslations<"organizations">>): string {
+  if (role === "ADMIN") return t("admin");
+  if (role === "MEMBER") return t("member");
   return role;
 }
 
@@ -49,6 +49,8 @@ function AddMemberForm({
   onSuccess: () => void;
   onCancel: () => void;
 }>) {
+  const t = useTranslations("organizations");
+  const tCommon = useTranslations("common");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"MEMBER" | "ADMIN">("MEMBER");
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -59,12 +61,12 @@ function AddMemberForm({
     e.preventDefault();
     const trimmed = email.trim();
     if (!trimmed) {
-      setEmailError("Email is required.");
+      setEmailError(t("emailRequired"));
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmed)) {
-      setEmailError("Please enter a valid email address.");
+      setEmailError(t("emailInvalid"));
       return;
     }
     setEmailError(null);
@@ -81,13 +83,13 @@ function AddMemberForm({
       const status = axiosError.response?.status;
       const message = axiosError.response?.data?.error;
       if (status === 409) {
-        setSubmitError(message ?? "This user is already a member.");
+        setSubmitError(message ?? t("alreadyMember"));
       } else if (status === 404) {
-        setSubmitError(message ?? "User not found.");
+        setSubmitError(message ?? t("userNotFound"));
       } else {
         setSubmitError(
           message ??
-            (axiosError instanceof Error ? axiosError.message : "Failed to add member.")
+            (axiosError instanceof Error ? axiosError.message : t("addMemberError"))
         );
       }
     } finally {
@@ -103,7 +105,7 @@ function AddMemberForm({
         </p>
       )}
       <div className="space-y-2">
-        <Label htmlFor="add-member-email">Email</Label>
+        <Label htmlFor="add-member-email">{t("email")}</Label>
         <Input
           id="add-member-email"
           type="email"
@@ -124,7 +126,7 @@ function AddMemberForm({
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="add-member-role">Role</Label>
+        <Label htmlFor="add-member-role">{t("role")}</Label>
         <select
           id="add-member-role"
           value={role}
@@ -133,16 +135,16 @@ function AddMemberForm({
           }
           className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
-          <option value="MEMBER">Member</option>
-          <option value="ADMIN">Admin</option>
+          <option value="MEMBER">{t("member")}</option>
+          <option value="ADMIN">{t("admin")}</option>
         </select>
       </div>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Adding…" : "Add member"}
+          {isSubmitting ? t("adding") : t("addMember")}
         </Button>
       </div>
     </form>
@@ -179,9 +181,11 @@ export function OrgMembersTab({
     setAddMemberOpen(false);
   }, [invalidateMembers]);
 
+  const t = useTranslations("organizations");
+  const tCommon = useTranslations("common");
   const showLastAdminError = useCallback(() => {
-    setActionError(LAST_ADMIN_MESSAGE);
-  }, []);
+    setActionError(t("lastAdminError"));
+  }, [t]);
 
   const handleUpdateRole = async (userId: number, newRole: "MEMBER" | "ADMIN") => {
     setActionError(null);
@@ -202,15 +206,13 @@ export function OrgMembersTab({
       }
       setActionError(
         (axiosError as AxiosError<{ error?: string }>).response?.data?.error ??
-          "Failed to update role."
+          t("failedToUpdateRole")
       );
     }
   };
 
   const handleRemoveMember = async (userId: number, label: string) => {
-    const confirmed = globalThis.confirm(
-      `Are you sure you want to remove ${label} from this organization?`
-    );
+    const confirmed = globalThis.confirm(t("removeMemberConfirm", { label }));
     if (!confirmed) return;
     setActionError(null);
     try {
@@ -227,7 +229,7 @@ export function OrgMembersTab({
         }
       }
       setActionError(
-        axiosError.response?.data?.error ?? "Failed to remove member."
+        axiosError.response?.data?.error ?? t("failedToRemoveMember")
       );
     }
   };
@@ -248,10 +250,10 @@ export function OrgMembersTab({
     return (
       <div className="space-y-2">
         <p className="text-destructive">
-          {error instanceof Error ? error.message : "Failed to load members."}
+          {error instanceof Error ? error.message : t("loadMembersError")}
         </p>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Retry
+          {tCommon("retry")}
         </Button>
       </div>
     );
@@ -260,16 +262,16 @@ export function OrgMembersTab({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-medium">Members</h3>
+        <h3 className="text-sm font-medium">{t("members")}</h3>
         {isAdmin && (
           <Button
             type="button"
             size="sm"
             onClick={() => setAddMemberOpen(true)}
-            aria-label="Add member"
+            aria-label={t("addMember")}
           >
             <Plus className="size-4" />
-            Add member
+            {t("addMember")}
           </Button>
         )}
       </div>
@@ -281,15 +283,15 @@ export function OrgMembersTab({
       )}
 
       {members.length === 0 ? (
-        <p className="text-muted-foreground text-sm">No members yet.</p>
+        <p className="text-muted-foreground text-sm">{t("noMembersYet")}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left">
-                <th scope="col" className="pb-2 pr-4 font-medium">Name / Email</th>
-                <th scope="col" className="pb-2 pr-4 font-medium">Role</th>
-                <th scope="col" className="pb-2 font-medium">Actions</th>
+                <th scope="col" className="pb-2 pr-4 font-medium">{tCommon("name")} / {t("email")}</th>
+                <th scope="col" className="pb-2 pr-4 font-medium">{t("role")}</th>
+                <th scope="col" className="pb-2 font-medium">{tCommon("actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -300,7 +302,7 @@ export function OrgMembersTab({
                 return (
                   <tr key={member.userId} className="border-b last:border-0">
                     <td className="py-2 pr-4">{label}</td>
-                    <td className="py-2 pr-4">{formatRole(member.role)}</td>
+                    <td className="py-2 pr-4">{formatRole(member.role, t)}</td>
                     <td className="py-2">
                       <div className="flex flex-wrap items-center gap-2">
                         {canManage && (
@@ -312,7 +314,7 @@ export function OrgMembersTab({
                                 size="sm"
                                 onClick={() => handleUpdateRole(member.userId, "ADMIN")}
                               >
-                                Set as Admin
+                                {t("setAsAdmin")}
                               </Button>
                             ) : (
                               <Button
@@ -321,7 +323,7 @@ export function OrgMembersTab({
                                 size="sm"
                                 onClick={() => handleUpdateRole(member.userId, "MEMBER")}
                               >
-                                Set as Member
+                                {t("setAsMember")}
                               </Button>
                             )}
                             <Button
@@ -329,10 +331,10 @@ export function OrgMembersTab({
                               variant="outline"
                               size="sm"
                               onClick={() => handleRemoveMember(member.userId, label)}
-                              aria-label={`Remove ${label}`}
+                              aria-label={`${t("remove")} ${label}`}
                             >
                               <UserMinus className="size-4" />
-                              Remove
+                              {t("remove")}
                             </Button>
                           </>
                         )}
@@ -344,10 +346,10 @@ export function OrgMembersTab({
                             onClick={() =>
                               handleRemoveMember(member.userId, "yourself")
                             }
-                            aria-label="Leave organization"
+                            aria-label={t("leaveOrg")}
                           >
                             <LogOut className="size-4" />
-                            Leave organization
+                            {t("leaveOrg")}
                           </Button>
                         )}
                       </div>
@@ -363,10 +365,8 @@ export function OrgMembersTab({
       <Sheet open={addMemberOpen} onOpenChange={setAddMemberOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Add member</SheetTitle>
-            <SheetDescription>
-              Invite someone by email. They must already have an account.
-            </SheetDescription>
+            <SheetTitle>{t("addMember")}</SheetTitle>
+            <SheetDescription>{t("addMemberDescription")}</SheetDescription>
           </SheetHeader>
           <AddMemberForm
             organizationId={organizationId}

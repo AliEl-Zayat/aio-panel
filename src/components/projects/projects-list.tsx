@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { projectService } from "@/services/project.service";
@@ -27,13 +28,17 @@ type ProjectScope = "all" | "personal" | "organization";
 
 function getScopeLabel(
   project: Project,
-  orgMap: Map<number, string>
+  orgMap: Map<number, string>,
+  scopePersonal: string,
+  scopeOrg: string
 ): string {
-  if (project.organizationId === null) return "Personal";
-  return orgMap.get(project.organizationId) ?? "Organization";
+  if (project.organizationId === null) return scopePersonal;
+  return orgMap.get(project.organizationId) ?? scopeOrg;
 }
 
 export function ProjectsList() {
+  const t = useTranslations("projects");
+  const tCommon = useTranslations("common");
   const queryClient = useQueryClient();
   const { currentOrganizationId } = useCurrentOrg();
   const [scope, setScope] = useState<ProjectScope>("all");
@@ -89,9 +94,7 @@ export function ProjectsList() {
   }, [invalidateProjects]);
 
   const handleDelete = async (project: Project) => {
-    const confirmed = globalThis.confirm(
-      `Are you sure you want to delete the project "${project.name}"? This cannot be undone.`
-    );
+    const confirmed = globalThis.confirm(t("deleteConfirm", { name: project.name }));
     if (!confirmed) return;
     setActionError(null);
     try {
@@ -101,21 +104,21 @@ export function ProjectsList() {
     } catch (err) {
       const axiosError = err as AxiosError<{ error?: string }>;
       setActionError(
-        axiosError.response?.data?.error ?? "Failed to delete project."
+        axiosError.response?.data?.error ?? t("deleteError")
       );
     }
   };
 
   const scopeOptions: { value: ProjectScope; label: string }[] = [
-    { value: "all", label: "All" },
-    { value: "personal", label: "Personal" },
+    { value: "all", label: t("scopeAll") },
+    { value: "personal", label: t("scopePersonal") },
   ];
   if (currentOrgName !== null) {
     scopeOptions.push({ value: "organization", label: currentOrgName });
   }
 
   if (isLoading) {
-    return <ProjectsListSkeleton />;
+    return <ProjectsListSkeleton t={t} tCommon={tCommon} />;
   }
 
   if (isError) {
@@ -123,10 +126,10 @@ export function ProjectsList() {
       <Card>
         <CardContent className="pt-6">
           <p className="text-destructive mb-2">
-            {error instanceof Error ? error.message : "Failed to load projects."}
+            {error instanceof Error ? error.message : t("loadError")}
           </p>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
-            Retry
+            {tCommon("retry")}
           </Button>
         </CardContent>
       </Card>
@@ -140,18 +143,18 @@ export function ProjectsList() {
           value={effectiveScope}
           options={scopeOptions}
           onValueChange={(v) => setScope(v)}
-          aria-label="Filter projects by scope"
+          aria-label={t("filterByScope")}
         />
         <Button
-          title="Create project"
-          aria-label="Create project"
+          title={t("create")}
+          aria-label={t("create")}
           onClick={() => {
             setActionError(null);
             setCreateSheetOpen(true);
           }}
         >
           <Plus className="size-4" />
-          Create project
+          {t("create")}
         </Button>
       </div>
 
@@ -164,34 +167,34 @@ export function ProjectsList() {
       {rawProjects.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <p className="text-muted-foreground mb-4">No projects yet</p>
+            <p className="text-muted-foreground mb-4">{t("noProjectsYet")}</p>
             <Button
-              title="Create project"
-              aria-label="Create project"
+              title={t("create")}
+              aria-label={t("create")}
               onClick={() => {
                 setActionError(null);
                 setCreateSheetOpen(true);
               }}
             >
               <Plus className="size-4" />
-              Create project
+              {t("create")}
             </Button>
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader className="sr-only">
-            <span>Projects list</span>
+            <span>{t("listTitle")}</span>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/50">
-                    <th className="text-left font-medium p-4">Name</th>
-                    <th className="text-left font-medium p-4">Slug</th>
-                    <th className="text-left font-medium p-4">Scope</th>
-                    <th className="text-right font-medium p-4">Actions</th>
+                    <th className="text-left font-medium p-4">{tCommon("name")}</th>
+                    <th className="text-left font-medium p-4">{tCommon("slug")}</th>
+                    <th className="text-left font-medium p-4">{t("scope")}</th>
+                    <th className="text-right font-medium p-4">{tCommon("actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -205,7 +208,7 @@ export function ProjectsList() {
                         {project.slug}
                       </td>
                       <td className="p-4">
-                        {getScopeLabel(project, orgMap)}
+                        {getScopeLabel(project, orgMap, t("scopePersonal"), t("scopeOrg"))}
                       </td>
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-2">
@@ -216,20 +219,20 @@ export function ProjectsList() {
                               setActionError(null);
                               setEditingProject(project);
                             }}
-                            aria-label={`Edit ${project.name}`}
+                            aria-label={`${t("edit")} ${project.name}`}
                           >
                             <Pencil className="size-4" />
-                            Edit
+                            {t("edit")}
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             className="text-destructive hover:text-destructive"
                             onClick={() => handleDelete(project)}
-                            aria-label={`Delete ${project.name}`}
+                            aria-label={`${t("delete")} ${project.name}`}
                           >
                             <Trash2 className="size-4" />
-                            Delete
+                            {t("delete")}
                           </Button>
                         </div>
                       </td>
@@ -253,11 +256,9 @@ export function ProjectsList() {
       >
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{createSheetOpen ? "Create project" : "Edit project"}</SheetTitle>
+            <SheetTitle>{createSheetOpen ? t("create") : t("edit")}</SheetTitle>
             <SheetDescription>
-              {createSheetOpen
-                ? "Create a new project under your personal account or an organization. Slug must be unique."
-                : "Update the project name and slug. Slug must be unique."}
+              {createSheetOpen ? t("createDescription") : t("editDescription")}
             </SheetDescription>
           </SheetHeader>
           {createSheetOpen && (
@@ -283,7 +284,13 @@ export function ProjectsList() {
   );
 }
 
-function ProjectsListSkeleton() {
+function ProjectsListSkeleton({
+  t,
+  tCommon,
+}: Readonly<{
+  t: ReturnType<typeof useTranslations<"projects">>;
+  tCommon: ReturnType<typeof useTranslations<"common">>;
+}>) {
   return (
     <Card>
       <CardContent className="p-0">
@@ -291,10 +298,10 @@ function ProjectsListSkeleton() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left font-medium p-4">Name</th>
-                <th className="text-left font-medium p-4">Slug</th>
-                <th className="text-left font-medium p-4">Scope</th>
-                <th className="text-right font-medium p-4">Actions</th>
+                <th className="text-left font-medium p-4">{tCommon("name")}</th>
+                <th className="text-left font-medium p-4">{tCommon("slug")}</th>
+                <th className="text-left font-medium p-4">{t("scope")}</th>
+                <th className="text-right font-medium p-4">{tCommon("actions")}</th>
               </tr>
             </thead>
             <tbody>

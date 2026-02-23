@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { organizationService } from "@/services/organization.service";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -10,6 +11,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function OrgDetailPage({ id }: { id: number }) {
+  const t = useTranslations("organizations");
+  const tCommon = useTranslations("common");
   const { user: currentUser } = useCurrentUser();
   const {
     data: org,
@@ -52,15 +55,15 @@ export function OrgDetailPage({ id }: { id: number }) {
     }
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-medium">Error</h2>
+        <h2 className="text-xl font-medium">{tCommon("error")}</h2>
         <p className="text-destructive">
-          {orgErr instanceof Error ? orgErr.message : "Failed to load organization."}
+          {orgErr instanceof Error ? orgErr.message : t("errorLoading")}
         </p>
         <Link
           href="/dashboard/organizations"
           className="text-primary hover:underline font-medium"
         >
-          ← Back to organizations
+          {t("backToOrganizations")}
         </Link>
       </div>
     );

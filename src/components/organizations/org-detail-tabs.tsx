@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { organizationService } from "@/services/organization.service";
@@ -27,20 +28,23 @@ export interface OrgDetailTabsProps {
   currentUserId: number | null;
 }
 
-function validateName(value: string): string | null {
-  if (!value.trim()) return "Name is required.";
-  if (value.length > NAME_MAX_LENGTH)
-    return `Name must be at most ${NAME_MAX_LENGTH} characters.`;
-  return null;
+function getValidateName(tCommon: ReturnType<typeof useTranslations<"common">>) {
+  return (value: string): string | null => {
+    if (!value.trim()) return tCommon("nameRequired");
+    if (value.length > NAME_MAX_LENGTH)
+      return tCommon("nameMaxLength", { max: NAME_MAX_LENGTH });
+    return null;
+  };
 }
 
-function validateSlug(value: string): string | null {
-  if (!value.trim()) return "Slug is required.";
-  if (value.length > SLUG_MAX_LENGTH)
-    return `Slug must be at most ${SLUG_MAX_LENGTH} characters.`;
-  if (!SLUG_REGEX.test(value))
-    return "Slug must be lowercase letters, numbers, and hyphens only (e.g. my-org).";
-  return null;
+function getValidateSlug(tCommon: ReturnType<typeof useTranslations<"common">>) {
+  return (value: string): string | null => {
+    if (!value.trim()) return tCommon("slugRequired");
+    if (value.length > SLUG_MAX_LENGTH)
+      return tCommon("slugMaxLength", { max: SLUG_MAX_LENGTH });
+    if (!SLUG_REGEX.test(value)) return tCommon("slugInvalid");
+    return null;
+  };
 }
 
 function DetailsTabContent({
@@ -52,7 +56,11 @@ function DetailsTabContent({
   organizationId: number;
   isAdmin: boolean;
 }>) {
+  const t = useTranslations("organizations");
+  const tCommon = useTranslations("common");
   const queryClient = useQueryClient();
+  const validateName = getValidateName(tCommon);
+  const validateSlug = getValidateSlug(tCommon);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(organization.name);
   const [slug, setSlug] = useState(organization.slug);
@@ -112,7 +120,7 @@ function DetailsTabContent({
       const axiosError = err as AxiosError<{ error?: string }>;
       if (axiosError.response?.status === 409) {
         setSlugError(
-          axiosError.response?.data?.error ?? "This slug is already taken."
+          axiosError.response?.data?.error ?? t("slugTaken")
         );
       }
     } finally {
@@ -124,7 +132,7 @@ function DetailsTabContent({
     return (
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
         <div className="space-y-2">
-          <Label htmlFor="org-edit-name">Name</Label>
+          <Label htmlFor="org-edit-name">{tCommon("name")}</Label>
           <Input
             id="org-edit-name"
             value={name}
@@ -142,7 +150,7 @@ function DetailsTabContent({
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="org-edit-slug">Slug</Label>
+          <Label htmlFor="org-edit-slug">{tCommon("slug")}</Label>
           <Input
             id="org-edit-slug"
             value={slug}
@@ -161,10 +169,10 @@ function DetailsTabContent({
         </div>
         <div className="flex gap-2">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving…" : "Save"}
+            {isSubmitting ? tCommon("saving") : tCommon("save")}
           </Button>
           <Button type="button" variant="outline" onClick={cancelEdit} disabled={isSubmitting}>
-            Cancel
+            {tCommon("cancel")}
           </Button>
         </div>
       </form>
@@ -175,17 +183,17 @@ function DetailsTabContent({
     <div className="space-y-4">
       <dl className="grid gap-2 text-sm">
         <div>
-          <dt className="font-medium text-muted-foreground">Name</dt>
+          <dt className="font-medium text-muted-foreground">{tCommon("name")}</dt>
           <dd>{organization.name}</dd>
         </div>
         <div>
-          <dt className="font-medium text-muted-foreground">Slug</dt>
+          <dt className="font-medium text-muted-foreground">{tCommon("slug")}</dt>
           <dd>{organization.slug}</dd>
         </div>
       </dl>
       {isAdmin && (
         <Button type="button" variant="outline" size="sm" onClick={startEdit}>
-          Edit
+          {t("edit")}
         </Button>
       )}
     </div>
@@ -220,17 +228,18 @@ export function OrgDetailTabs({
     [pathname, router, searchParams]
   );
 
+  const t = useTranslations("organizations");
   const isAdmin = currentUserRole === "ADMIN";
 
   return (
     <div className="space-y-4">
       <SegmentControl<OrgDetailTab>
-        aria-label="Organization sections"
+        aria-label={t("organizationSections")}
         value={tab}
         options={[
-          { value: "details", label: "Details" },
-          { value: "members", label: "Members" },
-          { value: "projects", label: "Projects" },
+          { value: "details", label: t("details") },
+          { value: "members", label: t("members") },
+          { value: "projects", label: t("projects") },
         ]}
         onValueChange={setTab}
       />

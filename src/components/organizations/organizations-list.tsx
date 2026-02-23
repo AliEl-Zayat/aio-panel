@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { organizationService } from "@/services/organization.service";
@@ -27,14 +28,13 @@ function CreateOrganizationSheet({
   onOpenChange: (open: boolean) => void;
   queryClient: QueryClient;
 }>) {
+  const t = useTranslations("organizations");
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Create organization</SheetTitle>
-          <SheetDescription>
-            Add a new organization. Name and URL-friendly slug are required.
-          </SheetDescription>
+          <SheetTitle>{t("create")}</SheetTitle>
+          <SheetDescription>{t("createDescription")}</SheetDescription>
         </SheetHeader>
         <CreateOrganizationForm
           onSuccess={() => {
@@ -48,9 +48,9 @@ function CreateOrganizationSheet({
   );
 }
 
-function formatRole(role: string): string {
-  if (role === "ADMIN") return "Admin";
-  if (role === "MEMBER") return "Member";
+function formatRole(role: string, t: ReturnType<typeof useTranslations<"organizations">>): string {
+  if (role === "ADMIN") return t("admin");
+  if (role === "MEMBER") return t("member");
   return role;
 }
 
@@ -59,6 +59,8 @@ function isAdmin(role: string): boolean {
 }
 
 export function OrganizationsList() {
+  const t = useTranslations("organizations");
+  const tCommon = useTranslations("common");
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const {
@@ -73,21 +75,19 @@ export function OrganizationsList() {
   });
 
   async function handleRemove(id: number, name: string) {
-    const confirmed = globalThis.confirm(
-      `Are you sure you want to delete the organization "${name}"? This action cannot be undone.`
-    );
+    const confirmed = globalThis.confirm(t("deleteConfirm", { name }));
     if (!confirmed) return;
     try {
       await organizationService.remove(id);
       await queryClient.invalidateQueries({ queryKey: ["organizations"] });
     } catch (err) {
       console.error("Failed to delete organization:", err);
-      globalThis.alert("Failed to delete organization. Please try again.");
+      globalThis.alert(t("deleteError"));
     }
   }
 
   if (isLoading) {
-    return <OrganizationsListSkeleton />;
+    return <OrganizationsListSkeleton t={t} tCommon={tCommon} />;
   }
 
   if (isError) {
@@ -95,10 +95,10 @@ export function OrganizationsList() {
       <Card>
         <CardContent className="pt-6">
           <p className="text-destructive mb-2">
-            {error instanceof Error ? error.message : "Failed to load organizations."}
+            {error instanceof Error ? error.message : t("loadError")}
           </p>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
-            Retry
+            {tCommon("retry")}
           </Button>
         </CardContent>
       </Card>
@@ -110,14 +110,14 @@ export function OrganizationsList() {
       <>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <p className="text-muted-foreground mb-4">No organizations yet</p>
+            <p className="text-muted-foreground mb-4">{t("noOrganizationsYet")}</p>
             <Button
-              title="Create organization"
-              aria-label="Create organization"
+              title={t("create")}
+              aria-label={t("create")}
               onClick={() => setCreateOpen(true)}
             >
               <Plus className="size-4" />
-              Create organization
+              {t("create")}
             </Button>
           </CardContent>
         </Card>
@@ -134,12 +134,12 @@ export function OrganizationsList() {
     <div className="space-y-4">
       <div className="flex justify-end">
         <Button
-          title="Create organization"
-          aria-label="Create organization"
+          title={t("create")}
+          aria-label={t("create")}
           onClick={() => setCreateOpen(true)}
         >
           <Plus className="size-4" />
-          Create organization
+          {t("create")}
         </Button>
       </div>
       <CreateOrganizationSheet
@@ -149,17 +149,17 @@ export function OrganizationsList() {
       />
       <Card>
         <CardHeader className="sr-only">
-          <span>Organizations list</span>
+          <span>{t("listTitle")}</span>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="text-left font-medium p-4">Name</th>
-                  <th className="text-left font-medium p-4">Slug</th>
-                  <th className="text-left font-medium p-4">Role</th>
-                  <th className="text-right font-medium p-4">Actions</th>
+                  <th className="text-left font-medium p-4">{tCommon("name")}</th>
+                  <th className="text-left font-medium p-4">{tCommon("slug")}</th>
+                  <th className="text-left font-medium p-4">{t("role")}</th>
+                  <th className="text-right font-medium p-4">{tCommon("actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -170,13 +170,13 @@ export function OrganizationsList() {
                   >
                     <td className="p-4 font-medium">{org.name}</td>
                     <td className="p-4 text-muted-foreground">{org.slug}</td>
-                    <td className="p-4">{formatRole(org.role)}</td>
+                    <td className="p-4">{formatRole(org.role, t)}</td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button variant="ghost" size="sm" asChild>
                           <Link href={`/dashboard/organizations/${org.id}`}>
                             <Eye className="size-4" />
-                            View
+                            {t("view")}
                           </Link>
                         </Button>
                         {isAdmin(org.role) && (
@@ -186,7 +186,7 @@ export function OrganizationsList() {
                                 href={`/dashboard/organizations/${org.id}?tab=details`}
                               >
                                 <Pencil className="size-4" />
-                                Edit
+                                {t("edit")}
                               </Link>
                             </Button>
                             <Button
@@ -196,7 +196,7 @@ export function OrganizationsList() {
                               onClick={() => handleRemove(org.id, org.name)}
                             >
                               <Trash2 className="size-4" />
-                              Delete
+                              {t("delete")}
                             </Button>
                           </>
                         )}
@@ -213,7 +213,13 @@ export function OrganizationsList() {
   );
 }
 
-function OrganizationsListSkeleton() {
+function OrganizationsListSkeleton({
+  t,
+  tCommon,
+}: {
+  t: ReturnType<typeof useTranslations<"organizations">>;
+  tCommon: ReturnType<typeof useTranslations<"common">>;
+}) {
   return (
     <Card>
       <CardContent className="p-0">
@@ -221,10 +227,10 @@ function OrganizationsListSkeleton() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left font-medium p-4">Name</th>
-                <th className="text-left font-medium p-4">Slug</th>
-                <th className="text-left font-medium p-4">Role</th>
-                <th className="text-right font-medium p-4">Actions</th>
+                <th className="text-left font-medium p-4">{tCommon("name")}</th>
+                <th className="text-left font-medium p-4">{tCommon("slug")}</th>
+                <th className="text-left font-medium p-4">{t("role")}</th>
+                <th className="text-right font-medium p-4">{tCommon("actions")}</th>
               </tr>
             </thead>
             <tbody>

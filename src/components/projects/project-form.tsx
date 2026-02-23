@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { AxiosError } from "axios";
 import { projectService } from "@/services/project.service";
 import type { Project, OrganizationMembership } from "@/types/api";
@@ -11,22 +12,6 @@ import { Label } from "@/components/ui/label";
 const NAME_MAX_LENGTH = 200;
 const SLUG_MAX_LENGTH = 100;
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
-function validateName(value: string): string | null {
-  if (!value.trim()) return "Name is required.";
-  if (value.length > NAME_MAX_LENGTH)
-    return `Name must be at most ${NAME_MAX_LENGTH} characters.`;
-  return null;
-}
-
-function validateSlug(value: string): string | null {
-  if (!value.trim()) return "Slug is required.";
-  if (value.length > SLUG_MAX_LENGTH)
-    return `Slug must be at most ${SLUG_MAX_LENGTH} characters.`;
-  if (!SLUG_REGEX.test(value))
-    return "Slug must be lowercase letters, numbers, and hyphens only (e.g. my-project).";
-  return null;
-}
 
 function normalizeSlugInput(value: string): string {
   return value.toLowerCase().replaceAll(/\s+/g, "-");
@@ -56,7 +41,31 @@ function getInitialOrganizationId(props: ProjectFormProps): string {
 }
 
 export function ProjectForm(props: ProjectFormProps) {
+  const t = useTranslations("projects");
+  const tCommon = useTranslations("common");
+  const tOrgs = useTranslations("organizations");
   const isCreate = props.mode === "create";
+
+  const validateName = useCallback(
+    (value: string): string | null => {
+      if (!value.trim()) return tCommon("nameRequired");
+      if (value.length > NAME_MAX_LENGTH)
+        return tCommon("nameMaxLength", { max: NAME_MAX_LENGTH });
+      return null;
+    },
+    [tCommon]
+  );
+
+  const validateSlug = useCallback(
+    (value: string): string | null => {
+      if (!value.trim()) return tCommon("slugRequired");
+      if (value.length > SLUG_MAX_LENGTH)
+        return tCommon("slugMaxLength", { max: SLUG_MAX_LENGTH });
+      if (!SLUG_REGEX.test(value)) return t("slugInvalid");
+      return null;
+    },
+    [tCommon, t]
+  );
 
   const [name, setName] = useState(isCreate ? "" : props.project.name);
   const [slug, setSlug] = useState(isCreate ? "" : props.project.slug);
@@ -101,12 +110,13 @@ export function ProjectForm(props: ProjectFormProps) {
       const axiosError = err as AxiosError<{ error?: string }>;
       if (axiosError.response?.status === 409) {
         setSlugError(
-          axiosError.response?.data?.error ?? "This slug is already taken."
+          axiosError.response?.data?.error ?? t("slugTaken")
         );
       } else {
+        const fallback = isCreate ? t("createError") : t("updateError");
         setSubmitError(
           axiosError.response?.data?.error ??
-            (err instanceof Error ? err.message : "Something went wrong.")
+            (err instanceof Error ? err.message : fallback)
         );
       }
     } finally {
@@ -115,8 +125,8 @@ export function ProjectForm(props: ProjectFormProps) {
   };
 
   const formId = isCreate ? "create-project" : "edit-project";
-  const submittingLabel = isCreate ? "Creating…" : "Saving…";
-  const submitLabel = isCreate ? "Create project" : "Save";
+  const submittingLabel = isCreate ? tCommon("creating") : tCommon("saving");
+  const submitLabel = isCreate ? t("createProject") : tCommon("save");
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -128,7 +138,7 @@ export function ProjectForm(props: ProjectFormProps) {
 
       {isCreate && (
         <div className="space-y-2">
-          <Label htmlFor={`${formId}-organization`}>Organization</Label>
+          <Label htmlFor={`${formId}-organization`}>{tOrgs("organization")}</Label>
           <select
             id={`${formId}-organization`}
             value={organizationId}
@@ -136,7 +146,7 @@ export function ProjectForm(props: ProjectFormProps) {
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             aria-describedby={`${formId}-organization-description`}
           >
-            <option value="personal">Personal</option>
+            <option value="personal">{t("scopePersonal")}</option>
             {props.organizations.map((org) => (
               <option key={org.id} value={org.id}>
                 {org.name}
@@ -144,13 +154,13 @@ export function ProjectForm(props: ProjectFormProps) {
             ))}
           </select>
           <p id={`${formId}-organization-description`} className="text-xs text-muted-foreground">
-            Create under your personal account or an organization.
+            {t("createInOrg")}
           </p>
         </div>
       )}
 
       <div className="space-y-2">
-        <Label htmlFor={`${formId}-name`}>Name</Label>
+        <Label htmlFor={`${formId}-name`}>{tCommon("name")}</Label>
         <Input
           id={`${formId}-name`}
           value={name}
@@ -173,7 +183,7 @@ export function ProjectForm(props: ProjectFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`${formId}-slug`}>Slug</Label>
+        <Label htmlFor={`${formId}-slug`}>{tCommon("slug")}</Label>
         <Input
           id={`${formId}-slug`}
           value={slug}
@@ -203,7 +213,7 @@ export function ProjectForm(props: ProjectFormProps) {
           onClick={props.onCancel}
           disabled={isSubmitting}
         >
-          Cancel
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? submittingLabel : submitLabel}

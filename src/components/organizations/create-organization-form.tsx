@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { organizationService } from "@/services/organization.service";
 import type { Organization } from "@/types/api";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,8 @@ export function CreateOrganizationForm({
   onSuccess,
   onCancel,
 }: CreateOrganizationFormProps) {
+  const t = useTranslations("organizations");
+  const tCommon = useTranslations("common");
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
@@ -29,21 +32,26 @@ export function CreateOrganizationForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const validateName = useCallback((value: string): string | null => {
-    if (!value.trim()) return "Name is required.";
-    if (value.length > NAME_MAX_LENGTH)
-      return `Name must be at most ${NAME_MAX_LENGTH} characters.`;
-    return null;
-  }, []);
+  const validateName = useCallback(
+    (value: string): string | null => {
+      if (!value.trim()) return tCommon("nameRequired");
+      if (value.length > NAME_MAX_LENGTH)
+        return tCommon("nameMaxLength", { max: NAME_MAX_LENGTH });
+      return null;
+    },
+    [tCommon]
+  );
 
-  const validateSlug = useCallback((value: string): string | null => {
-    if (!value.trim()) return "Slug is required.";
-    if (value.length > SLUG_MAX_LENGTH)
-      return `Slug must be at most ${SLUG_MAX_LENGTH} characters.`;
-    if (!SLUG_REGEX.test(value))
-      return "Slug must be lowercase letters, numbers, and hyphens only (e.g. my-org).";
-    return null;
-  }, []);
+  const validateSlug = useCallback(
+    (value: string): string | null => {
+      if (!value.trim()) return tCommon("slugRequired");
+      if (value.length > SLUG_MAX_LENGTH)
+        return tCommon("slugMaxLength", { max: SLUG_MAX_LENGTH });
+      if (!SLUG_REGEX.test(value)) return tCommon("slugInvalid");
+      return null;
+    },
+    [tCommon]
+  );
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -80,12 +88,12 @@ export function CreateOrganizationForm({
       const axiosError = err as AxiosError<{ error?: string }>;
       if (axiosError.response?.status === 409) {
         const message =
-          axiosError.response?.data?.error ?? "This slug is already taken.";
+          axiosError.response?.data?.error ?? t("slugTaken");
         setSlugError(message);
       } else {
         const message =
           axiosError.response?.data?.error ??
-          (axiosError instanceof Error ? axiosError.message : "Failed to create organization.");
+          (axiosError instanceof Error ? axiosError.message : t("createError"));
         setSubmitError(message);
       }
     } finally {
@@ -101,7 +109,7 @@ export function CreateOrganizationForm({
         </p>
       )}
       <div className="space-y-2">
-        <Label htmlFor="create-org-name">Name</Label>
+        <Label htmlFor="create-org-name">{tCommon("name")}</Label>
         <Input
           id="create-org-name"
           value={name}
@@ -119,7 +127,7 @@ export function CreateOrganizationForm({
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="create-org-slug">Slug</Label>
+        <Label htmlFor="create-org-slug">{tCommon("slug")}</Label>
         <Input
           id="create-org-slug"
           value={slug}
@@ -139,11 +147,11 @@ export function CreateOrganizationForm({
       <div className="flex justify-end gap-2">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {tCommon("cancel")}
           </Button>
         )}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Creating…" : "Create"}
+          {isSubmitting ? tCommon("creating") : t("createButton")}
         </Button>
       </div>
     </form>
