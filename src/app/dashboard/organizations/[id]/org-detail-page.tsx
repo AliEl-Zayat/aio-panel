@@ -1,13 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { organizationService } from "@/services/organization.service";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { OrgNotFoundView } from "@/components/organizations/org-not-found-view";
 import { OrgDetailTabs } from "@/components/organizations/org-detail-tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function OrgDetailPage({ id }: { id: number }) {
+  const { user: currentUser } = useCurrentUser();
   const {
     data: org,
     isLoading: orgLoading,
@@ -25,6 +28,7 @@ export function OrgDetailPage({ id }: { id: number }) {
 
   const membership = memberships.find((m) => m.id === id);
   const currentUserRole = membership?.role ?? null;
+  const currentUserId = currentUser?.id ?? null;
 
   if (orgLoading) {
     return (
@@ -73,6 +77,7 @@ export function OrgDetailPage({ id }: { id: number }) {
         organization={org}
         organizationId={id}
         currentUserRole={currentUserRole}
+        currentUserId={currentUserId}
       />
     </div>
   );

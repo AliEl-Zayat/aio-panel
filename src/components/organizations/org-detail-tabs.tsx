@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { organizationService } from "@/services/organization.service";
 import type { Organization } from "@/types/api";
+import { OrgMembersTab } from "@/components/organizations/org-members-tab";
 import { SegmentControl } from "@/components/ui/segment-control";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ export interface OrgDetailTabsProps {
   organization: Organization;
   organizationId: number;
   currentUserRole: string | null;
+  currentUserId: number | null;
 }
 
 function validateName(value: string): string | null {
@@ -85,7 +87,7 @@ function DetailsTabContent({
     setEditing(false);
   }, [organization.name, organization.slug]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmedName = name.trim();
     const trimmedSlug = slug.trim();
@@ -189,12 +191,6 @@ function DetailsTabContent({
   );
 }
 
-function MembersTabPlaceholder() {
-  return (
-    <p className="text-muted-foreground text-sm">Members tab — coming soon.</p>
-  );
-}
-
 function ProjectsTabPlaceholder() {
   return (
     <p className="text-muted-foreground text-sm">Projects tab — coming soon.</p>
@@ -205,6 +201,7 @@ export function OrgDetailTabs({
   organization,
   organizationId,
   currentUserRole,
+  currentUserId,
 }: Readonly<OrgDetailTabsProps>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -250,7 +247,13 @@ export function OrgDetailTabs({
               isAdmin={isAdmin}
             />
           )}
-          {tab === "members" && <MembersTabPlaceholder />}
+          {tab === "members" && (
+            <OrgMembersTab
+              organizationId={organizationId}
+              currentUserRole={currentUserRole}
+              currentUserId={currentUserId}
+            />
+          )}
           {tab === "projects" && <ProjectsTabPlaceholder />}
         </CardContent>
       </Card>
