@@ -10,6 +10,8 @@
   "nav": {
     "dashboard": "لوحة التحكم",
     "home": "الرئيسية",
+    "organizations": "المؤسسات",
+    "projects": "المشاريع",
     "apiReporter": "مُبلّغ API",
     "commandSnippets": "أوامر وسنابات",
     "emailTemplater": "قوالب البريد",

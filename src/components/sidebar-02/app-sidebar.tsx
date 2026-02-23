@@ -14,9 +14,10 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   Bug,
+  Building2,
   Code,
   DollarSign,
-  FileText,
+  FolderKanban,
   Home,
   Key,
   Mail,
@@ -72,6 +73,18 @@ function useDashboardRoutes(): Route[] {
       title: t("apiReporter"),
       icon: <Bug className="size-4" />,
       link: "/dashboard/api-reporter",
+    },
+    {
+      id: "organizations",
+      title: t("organizations"),
+      icon: <Building2 className="size-4" />,
+      link: "/dashboard/organizations",
+    },
+    {
+      id: "projects",
+      title: t("projects"),
+      icon: <FolderKanban className="size-4" />,
+      link: "/dashboard/projects",
     },
     {
       id: "command-snippets",
