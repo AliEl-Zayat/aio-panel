@@ -395,7 +395,7 @@ export function OrgMembersTab({
                               setActionError(null);
                               setRemoveTarget({
                                 userId: member.userId,
-                                label: "yourself",
+                                label: t("yourself"),
                               });
                             }}
                             aria-label={t("leaveOrg")}

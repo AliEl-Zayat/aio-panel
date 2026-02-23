@@ -114,6 +114,7 @@
     "admin": "Admin",
     "member": "Member",
     "leaveOrg": "Leave organization",
+    "yourself": "Yourself",
     "lastAdminError": "Cannot remove or demote the last admin.",
     "slugTaken": "This slug is already taken.",
     "notFound": "Organization not found",
