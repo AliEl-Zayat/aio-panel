@@ -19,6 +19,7 @@ import { organizationService } from "@/services/organization.service";
 import { useQuery } from "@tanstack/react-query";
 import { Building2, ChevronsUpDown, Plus, User } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 type Option = { value: number | null; label: string };
 
@@ -57,6 +58,17 @@ export function TeamSwitcher() {
   const options = getOptions(orgs);
   const selectedLabel = getSelectedLabel(currentOrganizationId, options);
   const SelectedIcon = getSelectedIcon(currentOrganizationId);
+
+  // Sync context when current org is no longer in the list (e.g. user left the org)
+  useEffect(() => {
+    if (
+      currentOrganizationId !== null &&
+      orgs.length > 0 &&
+      !orgs.some((o) => o.id === currentOrganizationId)
+    ) {
+      setCurrentOrganizationId(null);
+    }
+  }, [currentOrganizationId, orgs, setCurrentOrganizationId]);
 
   return (
     <SidebarMenu>
