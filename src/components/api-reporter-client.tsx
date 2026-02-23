@@ -46,6 +46,12 @@ export function ApiReporterClient() {
 
   const canCopy = endpoint.trim().length > 0 && method.length > 0;
 
+  const githubIssuesUrl = process.env.NEXT_PUBLIC_GITHUB_ISSUES_URL;
+  const openInGitHubUrl =
+    githubIssuesUrl ?
+      `${githubIssuesUrl}${githubIssuesUrl.includes("?") ? "&" : "?"}body=${encodeURIComponent(markdown)}`
+    : null;
+
   let copyButtonLabel = t("copyMarkdown");
   if (copyStatus === "success") copyButtonLabel = t("copied");
   else if (copyStatus === "error") copyButtonLabel = t("copyError");
@@ -152,9 +158,18 @@ export function ApiReporterClient() {
             className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[80px] font-mono"
           />
         </div>
-        <Button onClick={handleCopy} disabled={!canCopy}>
-          {copyButtonLabel}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleCopy} disabled={!canCopy}>
+            {copyButtonLabel}
+          </Button>
+          {openInGitHubUrl && (
+            <Button variant="outline" asChild>
+              <a href={openInGitHubUrl} target="_blank" rel="noopener noreferrer">
+                {t("openInGitHub")}
+              </a>
+            </Button>
+          )}
+        </div>
       </div>
       <div className="space-y-2">
         <Label>{t("preview")}</Label>

@@ -67,7 +67,8 @@
     "preview": "معاينة",
     "copyMarkdown": "نسخ Markdown",
     "copied": "تم النسخ!",
-    "copyError": "فشل النسخ"
+    "copyError": "فشل النسخ",
+    "openInGitHub": "فتح في GitHub"
   },
   "locale": {
     "en": "English",

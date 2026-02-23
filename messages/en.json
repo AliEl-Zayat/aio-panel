@@ -67,7 +67,8 @@
     "preview": "Preview",
     "copyMarkdown": "Copy markdown",
     "copied": "Copied!",
-    "copyError": "Copy failed"
+    "copyError": "Copy failed",
+    "openInGitHub": "Open in GitHub"
   },
   "locale": {
     "en": "English",
