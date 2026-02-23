@@ -405,7 +405,10 @@ export function OrgProjectsTab({
         <Button
           type="button"
           size="sm"
-          onClick={() => setCreateOpen(true)}
+          onClick={() => {
+            setActionError(null);
+            setCreateOpen(true);
+          }}
           aria-label="Create project"
         >
           <Plus className="size-4" />
@@ -450,7 +453,10 @@ export function OrgProjectsTab({
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => setEditingProject(project)}
+                        onClick={() => {
+                          setActionError(null);
+                          setEditingProject(project);
+                        }}
                         aria-label={`Edit ${project.name}`}
                       >
                         <Pencil className="size-4" />
