@@ -96,6 +96,7 @@ export function ProjectsList() {
     setActionError(null);
     try {
       await projectService.remove(project.id);
+      setActionError(null);
       invalidateProjects();
     } catch (err) {
       const axiosError = err as AxiosError<{ error?: string }>;
