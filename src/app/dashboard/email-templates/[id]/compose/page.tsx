@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 import { ComposeView } from "@/components/email-templates/compose-view";
+import { Button } from "@/components/ui/button";
 
 export default async function ComposePage({
   params,
@@ -9,9 +11,13 @@ export default async function ComposePage({
   const { id } = await params;
   const templateId = Number(id);
   if (!Number.isInteger(templateId) || templateId < 1) {
+    const t = await getTranslations("emailTemplates");
     return (
       <div className="space-y-4">
-        <p className="text-destructive">Invalid template ID.</p>
+        <p className="text-destructive">{t("invalidTemplateId")}</p>
+        <Button asChild variant="outline">
+          <Link href="/dashboard/email-templates">{t("backToList")}</Link>
+        </Button>
       </div>
     );
   }

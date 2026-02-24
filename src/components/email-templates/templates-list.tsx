@@ -187,9 +187,7 @@ export function TemplatesList() {
         <SheetContent className="overflow-y-auto">
           <SheetHeader>
             <SheetTitle>{t("createTemplate")}</SheetTitle>
-            <SheetDescription>
-              Add a new email template. Use {"{{placeholder}}"} in subject and body.
-            </SheetDescription>
+            <SheetDescription>{t("createDescription")}</SheetDescription>
           </SheetHeader>
           <div className="mt-6">
             <TemplateForm
@@ -206,7 +204,7 @@ export function TemplatesList() {
         <SheetContent className="overflow-y-auto">
           <SheetHeader>
             <SheetTitle>{t("editTemplate")}</SheetTitle>
-            <SheetDescription>Update name, subject, or body.</SheetDescription>
+            <SheetDescription>{t("editDescription")}</SheetDescription>
           </SheetHeader>
           <div className="mt-6">
             {editingTemplate && (

@@ -253,6 +253,9 @@
     "fillPlaceholders": "ملء العناصر النائبة",
     "subjectPreview": "الموضوع (معاينة)",
     "bodyPreview": "المحتوى (معاينة)",
-    "backToList": "العودة إلى القوالب"
+    "backToList": "العودة إلى القوالب",
+    "createDescription": "إضافة قالب بريد جديد. استخدم {{placeholder}} في الموضوع والمحتوى.",
+    "editDescription": "تحديث الاسم أو الموضوع أو المحتوى.",
+    "invalidTemplateId": "معرّف القالب غير صالح."
   }
 }

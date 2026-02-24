@@ -253,6 +253,9 @@
     "fillPlaceholders": "Fill placeholders",
     "subjectPreview": "Subject (preview)",
     "bodyPreview": "Body (preview)",
-    "backToList": "Back to templates"
+    "backToList": "Back to templates",
+    "createDescription": "Add a new email template. Use {{placeholder}} in subject and body.",
+    "editDescription": "Update name, subject, or body.",
+    "invalidTemplateId": "Invalid template ID."
   }
 }
