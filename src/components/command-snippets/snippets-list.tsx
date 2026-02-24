@@ -77,6 +77,7 @@ export function SnippetsList() {
   const [deleteTarget, setDeleteTarget] = useState<CommandSnippet | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [copyErrorId, setCopyErrorId] = useState<number | null>(null);
 
   const listParams = useMemo((): CommandSnippetListParams | undefined => {
     const params: CommandSnippetListParams = {};
@@ -144,12 +145,15 @@ export function SnippetsList() {
   };
 
   const handleCopy = async (snippet: CommandSnippet) => {
+    setCopyErrorId(null);
     try {
       await navigator.clipboard.writeText(snippet.content);
       setCopiedId(snippet.id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch {
-      // copyError shown via aria or toast if we add one
+      setCopiedId(null);
+      setCopyErrorId(snippet.id);
+      setTimeout(() => setCopyErrorId(null), 5000);
     }
   };
 
@@ -329,6 +333,11 @@ export function SnippetsList() {
                         <Trash2 className="size-4" />
                       </Button>
                     </div>
+                    {copyErrorId === snippet.id && (
+                      <p className="text-destructive text-xs mt-1" role="alert">
+                        {t("copyError")}
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
