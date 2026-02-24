@@ -36,4 +36,8 @@ export const ApiUrlConstants = {
   /** Email templates — list + CRUD; optional ?scope=personal | ?organizationId= | ?projectId= */
   EMAIL_TEMPLATES: "/api/email-templates",
   EMAIL_TEMPLATE_BY_ID: (id: number) => `/api/email-templates/${id}`,
+
+  /** Command snippets — list + CRUD; optional ?scope=personal | ?organizationId= | ?projectId= */
+  COMMAND_SNIPPETS: "/api/command-snippets",
+  COMMAND_SNIPPET_BY_ID: (id: number) => `/api/command-snippets/${id}`,
 } as const;

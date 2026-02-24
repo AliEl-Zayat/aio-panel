@@ -93,3 +93,20 @@ export interface EmailTemplate {
   organization?: { id: number; name: string; slug: string } | null;
   project?: { id: number; name: string; slug: string } | null;
 }
+
+// --- Command snippets ---
+
+/** Command snippet shape from GET/POST/PATCH /api/command-snippets. */
+export interface CommandSnippet {
+  id: number;
+  name: string;
+  content: string;
+  type: "COMMAND" | "TEXT";
+  userId: number;
+  organizationId: number | null;
+  projectId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  organization?: { id: number; name: string; slug: string } | null;
+  project?: { id: number; name: string; slug: string } | null;
+}
