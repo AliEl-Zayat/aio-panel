@@ -96,13 +96,13 @@ function useDashboardRoutes(): Route[] {
       id: "email-templater",
       title: t("emailTemplater"),
       icon: <Mail className="size-4" />,
-      link: "#",
+      link: "/dashboard/email-templates",
     },
     {
       id: "knowledge-area",
       title: t("knowledgeArea"),
       icon: <BookOpen className="size-4" />,
-      link: "#",
+      link: "/dashboard/knowledge",
     },
     {
       id: "topic-research",
