@@ -54,3 +54,42 @@ export interface Project {
   userId: number;
   organizationId: number | null;
 }
+
+// --- Knowledge area (companies + tasks) ---
+
+/** Company shape from GET/POST/PATCH /api/companies. */
+export interface Company {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+/** Knowledge task shape from GET/POST/PATCH /api/knowledge/tasks. */
+export interface KnowledgeTask {
+  id: number;
+  title: string;
+  body: string | null;
+  companyId: number | null;
+  organizationId: number | null;
+  projectId: number | null;
+  company?: { id: number; name: string; slug: string } | null;
+  organization?: { id: number; name: string; slug: string } | null;
+  project?: { id: number; name: string; slug: string } | null;
+}
+
+// --- Email templates ---
+
+/** Email template shape from GET/POST/PATCH /api/email-templates. */
+export interface EmailTemplate {
+  id: number;
+  name: string;
+  subject: string;
+  body: string;
+  userId: number;
+  organizationId: number | null;
+  projectId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  organization?: { id: number; name: string; slug: string } | null;
+  project?: { id: number; name: string; slug: string } | null;
+}

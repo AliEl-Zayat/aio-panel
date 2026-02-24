@@ -4,7 +4,7 @@
  * NEXT_PUBLIC_API_URL is inlined at build time in Next.js.
  */
 const getBaseUrl = (): string =>
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://192.168.1.5:4000";
 
 export const ApiUrlConstants = {
   getBaseUrl,
@@ -24,4 +24,16 @@ export const ApiUrlConstants = {
   /** Projects — list + create; query ?scope= */
   PROJECTS: "/api/projects",
   PROJECT_BY_ID: (id: number) => `/api/projects/${id}`,
+
+  /** Companies — list + CRUD (user-scoped) */
+  COMPANIES: "/api/companies",
+  COMPANY_BY_ID: (id: number) => `/api/companies/${id}`,
+
+  /** Knowledge tasks — list + CRUD; optional ?companyId= */
+  KNOWLEDGE_TASKS: "/api/knowledge/tasks",
+  KNOWLEDGE_TASK_BY_ID: (id: number) => `/api/knowledge/tasks/${id}`,
+
+  /** Email templates — list + CRUD; optional ?scope=personal | ?organizationId= | ?projectId= */
+  EMAIL_TEMPLATES: "/api/email-templates",
+  EMAIL_TEMPLATE_BY_ID: (id: number) => `/api/email-templates/${id}`,
 } as const;
