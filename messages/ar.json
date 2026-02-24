@@ -257,5 +257,27 @@
     "createDescription": "إضافة قالب بريد جديد. استخدم {{placeholder}} في الموضوع والمحتوى.",
     "editDescription": "تحديث الاسم أو الموضوع أو المحتوى.",
     "invalidTemplateId": "معرّف القالب غير صالح."
+  },
+  "commandSnippets": {
+    "title": "قصاصات الأوامر",
+    "add": "إضافة قصاصة",
+    "typeCommand": "أمر",
+    "typeText": "نص",
+    "scopePersonal": "شخصي",
+    "scopeAll": "الكل",
+    "name": "الاسم",
+    "content": "المحتوى",
+    "copy": "نسخ",
+    "searchPlaceholder": "البحث في القصاصات…",
+    "empty": "لا توجد قصاصات بعد",
+    "createSnippet": "إنشاء قصاصة",
+    "editSnippet": "تعديل القصاصة",
+    "deleteConfirm": "هل أنت متأكد من حذف هذه القصاصة؟ لا يمكن التراجع عن ذلك.",
+    "loadError": "فشل تحميل القصاصات.",
+    "createError": "فشل إنشاء القصاصة.",
+    "updateError": "فشل تحديث القصاصة.",
+    "deleteError": "فشل حذف القصاصة.",
+    "copyError": "فشل النسخ.",
+    "copied": "تم النسخ إلى الحافظة"
   }
 }

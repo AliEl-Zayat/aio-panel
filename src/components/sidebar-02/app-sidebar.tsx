@@ -90,7 +90,7 @@ function useDashboardRoutes(): Route[] {
       id: "command-snippets",
       title: t("commandSnippets"),
       icon: <Code className="size-4" />,
-      link: "#",
+      link: "/dashboard/command-snippets",
     },
     {
       id: "email-templater",

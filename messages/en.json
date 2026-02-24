@@ -257,5 +257,27 @@
     "createDescription": "Add a new email template. Use {{placeholder}} in subject and body.",
     "editDescription": "Update name, subject, or body.",
     "invalidTemplateId": "Invalid template ID."
+  },
+  "commandSnippets": {
+    "title": "Command snippets",
+    "add": "Add snippet",
+    "typeCommand": "Command",
+    "typeText": "Text",
+    "scopePersonal": "Personal",
+    "scopeAll": "All",
+    "name": "Name",
+    "content": "Content",
+    "copy": "Copy",
+    "searchPlaceholder": "Search snippets…",
+    "empty": "No snippets yet",
+    "createSnippet": "Create snippet",
+    "editSnippet": "Edit snippet",
+    "deleteConfirm": "Are you sure you want to delete this snippet? This action cannot be undone.",
+    "loadError": "Failed to load snippets.",
+    "createError": "Failed to create snippet.",
+    "updateError": "Failed to update snippet.",
+    "deleteError": "Failed to delete snippet.",
+    "copyError": "Failed to copy.",
+    "copied": "Copied to clipboard"
   }
 }
