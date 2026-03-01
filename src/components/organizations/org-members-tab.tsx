@@ -11,12 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -414,19 +414,19 @@ export function OrgMembersTab({
         </div>
       )}
 
-      <Sheet open={addMemberOpen} onOpenChange={setAddMemberOpen}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>{t("addMember")}</SheetTitle>
-            <SheetDescription>{t("addMemberDescription")}</SheetDescription>
-          </SheetHeader>
+      <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
+        <DialogContent className="overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{t("addMember")}</DialogTitle>
+            <DialogDescription>{t("addMemberDescription")}</DialogDescription>
+          </DialogHeader>
           <AddMemberForm
             organizationId={organizationId}
             onSuccess={handleAddSuccess}
             onCancel={() => setAddMemberOpen(false)}
           />
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

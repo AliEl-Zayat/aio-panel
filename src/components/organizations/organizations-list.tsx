@@ -11,12 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +30,7 @@ import {
 import { CreateOrganizationForm } from "./create-organization-form";
 import { Plus, Eye, Pencil, Trash2 } from "lucide-react";
 
-function CreateOrganizationSheet({
+function CreateOrganizationDialog({
   open,
   onOpenChange,
   queryClient,
@@ -41,12 +41,12 @@ function CreateOrganizationSheet({
 }>) {
   const t = useTranslations("organizations");
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
-        <SheetHeader>
-          <SheetTitle>{t("create")}</SheetTitle>
-          <SheetDescription>{t("createDescription")}</SheetDescription>
-        </SheetHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="overflow-y-auto max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle>{t("create")}</DialogTitle>
+          <DialogDescription>{t("createDescription")}</DialogDescription>
+        </DialogHeader>
         <CreateOrganizationForm
           onSuccess={() => {
             queryClient.invalidateQueries({ queryKey: ["organizations"] });
@@ -54,8 +54,8 @@ function CreateOrganizationSheet({
           }}
           onCancel={() => onOpenChange(false)}
         />
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -143,7 +143,7 @@ export function OrganizationsList() {
             </Button>
           </CardContent>
         </Card>
-        <CreateOrganizationSheet
+        <CreateOrganizationDialog
           open={createOpen}
           onOpenChange={setCreateOpen}
           queryClient={queryClient}
@@ -169,7 +169,7 @@ export function OrganizationsList() {
           {actionError}
         </p>
       )}
-      <CreateOrganizationSheet
+      <CreateOrganizationDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
         queryClient={queryClient}

@@ -1,15 +1,14 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
-import { isRtl } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { SegmentControl } from "@/components/ui/segment-control";
 import { usePreferences } from "@/hooks/use-preferences";
 import type {
@@ -20,12 +19,7 @@ import type {
   SidebarCollapseMode,
 } from "@/types/preferences";
 import { cn } from "@/lib/utils";
-
-const THEME_PRESETS = [{ value: "default", label: "Default" }];
-const FONT_OPTIONS = [
-  { value: "Inter", label: "Inter" },
-  { value: "Geist Sans", label: "Geist Sans" },
-];
+import { THEME_PRESETS, FONT_OPTIONS } from "@/lib/preferences-constants";
 
 export function PreferencesSheet({
   open,
@@ -35,8 +29,6 @@ export function PreferencesSheet({
   onOpenChange: (open: boolean) => void;
 }>) {
   const t = useTranslations("preferences");
-  const locale = useLocale();
-  const rtl = isRtl(locale);
   const {
     preferences,
     isLoading,
@@ -71,15 +63,12 @@ export function PreferencesSheet({
   if (isLoading) return null;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side={rtl ? "left" : "right"}
-        className="overflow-y-auto"
-      >
-        <SheetHeader>
-          <SheetTitle>{t("title")}</SheetTitle>
-          <SheetDescription>{t("description")}</SheetDescription>
-        </SheetHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="overflow-y-auto max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
+        </DialogHeader>
         <p className="mt-1 text-muted-foreground text-xs">{t("storageNote")}</p>
         <div className="mt-6 flex flex-col gap-6">
           <div>
@@ -173,6 +162,34 @@ export function PreferencesSheet({
               aria-label={t("sidebarCollapseMode")}
             />
           </div>
+          <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
+            <div>
+              <p className="text-sm font-medium">{t("convertToLocaleCurrency")}</p>
+              <p className="text-muted-foreground text-xs">
+                {t("convertToLocaleCurrencyDescription")}
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={preferences.convertToLocaleCurrency}
+              onClick={() =>
+                patch({ convertToLocaleCurrency: !preferences.convertToLocaleCurrency })
+              }
+              className={cn(
+                "relative inline-flex h-6 w-11 shrink-0 rounded-full border border-input transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                preferences.convertToLocaleCurrency ? "bg-primary" : "bg-muted"
+              )}
+            >
+              <span
+                className={cn(
+                  "pointer-events-none block size-5 rounded-full bg-background shadow-lg ring-0 transition-transform",
+                  preferences.convertToLocaleCurrency ? "translate-x-5" : "translate-x-0.5"
+                )}
+              />
+            </button>
+          </div>
           <Button
             variant="outline"
             className="mt-4"
@@ -182,7 +199,7 @@ export function PreferencesSheet({
             {t("restoreDefaults")}
           </Button>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }

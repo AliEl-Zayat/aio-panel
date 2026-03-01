@@ -11,12 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -183,12 +183,12 @@ export function TemplatesList() {
         </div>
       )}
 
-      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <SheetContent className="overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>{t("createTemplate")}</SheetTitle>
-            <SheetDescription>{t("createDescription")}</SheetDescription>
-          </SheetHeader>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{t("createTemplate")}</DialogTitle>
+            <DialogDescription>{t("createDescription")}</DialogDescription>
+          </DialogHeader>
           <div className="mt-6">
             <TemplateForm
               organizations={organizations}
@@ -197,15 +197,15 @@ export function TemplatesList() {
               onCancel={() => setCreateOpen(false)}
             />
           </div>
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
 
-      <Sheet open={editingTemplate != null} onOpenChange={(open) => !open && setEditingTemplate(null)}>
-        <SheetContent className="overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>{t("editTemplate")}</SheetTitle>
-            <SheetDescription>{t("editDescription")}</SheetDescription>
-          </SheetHeader>
+      <Dialog open={editingTemplate != null} onOpenChange={(open) => !open && setEditingTemplate(null)}>
+        <DialogContent className="overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{t("editTemplate")}</DialogTitle>
+            <DialogDescription>{t("editDescription")}</DialogDescription>
+          </DialogHeader>
           <div className="mt-6">
             {editingTemplate && (
               <TemplateForm
@@ -217,8 +217,8 @@ export function TemplatesList() {
               />
             )}
           </div>
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={deleteTarget != null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>

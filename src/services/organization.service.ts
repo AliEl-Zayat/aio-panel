@@ -22,7 +22,11 @@ export const organizationService = {
     return data;
   },
 
-  async create(body: { name: string; slug: string }): Promise<Organization> {
+  async create(body: {
+    name: string;
+    slug: string;
+    logoUrl?: string | null;
+  }): Promise<Organization> {
     const { data } = await apiClient.post<Organization>(
       ApiUrlConstants.ORGANIZATIONS,
       body
@@ -32,7 +36,7 @@ export const organizationService = {
 
   async update(
     id: number,
-    body: { name?: string; slug?: string }
+    body: { name?: string; slug?: string; logoUrl?: string | null }
   ): Promise<Organization> {
     const { data } = await apiClient.patch<Organization>(
       ApiUrlConstants.ORGANIZATION_BY_ID(id),

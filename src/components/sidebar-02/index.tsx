@@ -10,12 +10,12 @@ export default function Sidebar02({
     <SidebarProvider>
       <div
         dir={dir}
-        className="panel-gradient-bg relative flex h-dvh w-full bg-sidebar/60 backdrop-blur-sm"
+        className="panel-gradient-bg relative flex h-dvh w-full overflow-hidden bg-sidebar/60 backdrop-blur-sm"
       >
-        <div className="flex shrink-0">
+        <div className="flex shrink-0 overflow-hidden">
           <DashboardSidebar side={dir === "rtl" ? "right" : "left"} />
         </div>
-        <SidebarInset className="relative z-0 min-w-0 flex flex-1 flex-col m-2 rounded-xl shadow overflow-hidden bg-transparent">
+        <SidebarInset className="relative z-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden m-2 rounded-xl shadow bg-transparent">
           {children}
         </SidebarInset>
       </div>

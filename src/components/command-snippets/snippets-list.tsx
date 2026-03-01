@@ -16,12 +16,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -346,12 +346,12 @@ export function SnippetsList() {
         );
       })()}
 
-      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <SheetContent className="overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>{t("createSnippet")}</SheetTitle>
-            <SheetDescription>{t("createDescription")}</SheetDescription>
-          </SheetHeader>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{t("createSnippet")}</DialogTitle>
+            <DialogDescription>{t("createDescription")}</DialogDescription>
+          </DialogHeader>
           <div className="mt-6">
             <SnippetForm
               organizations={organizations}
@@ -360,18 +360,18 @@ export function SnippetsList() {
               onCancel={() => setCreateOpen(false)}
             />
           </div>
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
 
-      <Sheet
+      <Dialog
         open={editingSnippet != null}
         onOpenChange={(open) => !open && setEditingSnippet(null)}
       >
-        <SheetContent className="overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>{t("editSnippet")}</SheetTitle>
-            <SheetDescription>{t("editDescription")}</SheetDescription>
-          </SheetHeader>
+        <DialogContent className="overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{t("editSnippet")}</DialogTitle>
+            <DialogDescription>{t("editDescription")}</DialogDescription>
+          </DialogHeader>
           <div className="mt-6">
             {editingSnippet && (
               <SnippetForm
@@ -383,8 +383,8 @@ export function SnippetsList() {
               />
             )}
           </div>
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog
         open={deleteTarget != null}

@@ -74,7 +74,7 @@ export function ApiReporterClient() {
             id="method"
             value={method}
             onChange={(e) => setMethod(e.target.value as (typeof HTTP_METHODS)[number])}
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="flex h-9 w-full rounded-md border border-input bg-background/80 backdrop-blur-sm px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             {HTTP_METHODS.map((m) => (
               <option key={m} value={m}>
@@ -89,7 +89,7 @@ export function ApiReporterClient() {
             id="environment"
             value={environment}
             onChange={(e) => setEnvironment(e.target.value)}
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="flex h-9 w-full rounded-md border border-input bg-background/80 backdrop-blur-sm px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             {ENVIRONMENTS.map((env) => (
               <option key={env || "empty"} value={env}>
@@ -105,7 +105,7 @@ export function ApiReporterClient() {
                 type="checkbox"
                 checked={isJson}
                 onChange={(e) => setIsJson(e.target.checked)}
-                className="rounded border-input"
+                className="rounded border-input bg-background/80 backdrop-blur-sm"
               />
               {t("contentIsJson")}
             </label>
@@ -113,7 +113,7 @@ export function ApiReporterClient() {
               <select
                 value={nonJsonType}
                 onChange={(e) => setNonJsonType(e.target.value as (typeof NON_JSON_CONTENT_TYPES)[number])}
-                className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-9 rounded-md border border-input bg-background/80 backdrop-blur-sm px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 aria-label={t("contentType")}
               >
                 {NON_JSON_CONTENT_TYPES.map((type) => (
@@ -133,7 +133,7 @@ export function ApiReporterClient() {
             value={requestPayload}
             onChange={(e) => setRequestPayload(e.target.value)}
             rows={3}
-            className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[60px] font-mono"
+            className="flex w-full rounded-md border border-input bg-background/80 backdrop-blur-sm px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[60px] font-mono"
           />
         </div>
         <div className="space-y-2">
@@ -144,7 +144,7 @@ export function ApiReporterClient() {
             value={expected}
             onChange={(e) => setExpected(e.target.value)}
             rows={4}
-            className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[80px] font-mono"
+            className="flex w-full rounded-md border border-input bg-background/80 backdrop-blur-sm px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[80px] font-mono"
           />
         </div>
         <div className="space-y-2">
@@ -155,7 +155,7 @@ export function ApiReporterClient() {
             value={actual}
             onChange={(e) => setActual(e.target.value)}
             rows={4}
-            className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[80px] font-mono"
+            className="flex w-full rounded-md border border-input bg-background/80 backdrop-blur-sm px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[80px] font-mono"
           />
         </div>
         <div className="flex gap-2">

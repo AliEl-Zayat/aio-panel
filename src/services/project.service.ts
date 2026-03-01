@@ -25,6 +25,8 @@ export const projectService = {
     name: string;
     slug: string;
     organizationId?: number;
+    logoUrl?: string | null;
+    previewImageUrl?: string | null;
   }): Promise<Project> {
     const { data } = await apiClient.post<Project>(
       ApiUrlConstants.PROJECTS,
@@ -35,7 +37,12 @@ export const projectService = {
 
   async update(
     id: number,
-    body: { name?: string; slug?: string }
+    body: {
+      name?: string;
+      slug?: string;
+      logoUrl?: string | null;
+      previewImageUrl?: string | null;
+    }
   ): Promise<Project> {
     const { data } = await apiClient.patch<Project>(
       ApiUrlConstants.PROJECT_BY_ID(id),

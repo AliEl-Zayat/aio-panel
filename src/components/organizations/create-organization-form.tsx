@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { organizationService } from "@/services/organization.service";
+import { usePersistedFormState } from "@/hooks/use-persisted-form-state";
 import type { Organization } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,18 @@ const NAME_MAX_LENGTH = 200;
 const SLUG_MAX_LENGTH = 100;
 /** Lowercase, hyphenated slug; matches server rule. */
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+interface CreateOrganizationFormValues {
+  name: string;
+  slug: string;
+  logoUrl: string;
+}
+
+const EMPTY_ORG_FORM: CreateOrganizationFormValues = {
+  name: "",
+  slug: "",
+  logoUrl: "",
+};
 
 export interface CreateOrganizationFormProps {
   readonly onSuccess: (organization: Organization) => void;
@@ -25,8 +38,12 @@ export function CreateOrganizationForm({
 }: CreateOrganizationFormProps) {
   const t = useTranslations("organizations");
   const tCommon = useTranslations("common");
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
+  const [formValues, setFormValues, clearDraft] = usePersistedFormState(
+    "form-draft:organization:create",
+    EMPTY_ORG_FORM,
+    { debounceMs: 400 }
+  );
+  const { name, slug, logoUrl } = formValues;
   const [nameError, setNameError] = useState<string | null>(null);
   const [slugError, setSlugError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -55,13 +72,13 @@ export function CreateOrganizationForm({
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setName(value);
+    setFormValues((prev) => ({ ...prev, name: value }));
     setNameError(validateName(value));
   };
 
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase().replaceAll(/\s+/g, "-");
-    setSlug(value);
+    setFormValues((prev) => ({ ...prev, slug: value }));
     setSlugError(validateSlug(value));
   };
 
@@ -82,7 +99,9 @@ export function CreateOrganizationForm({
       const organization = await organizationService.create({
         name: trimmedName,
         slug: trimmedSlug,
+        logoUrl: logoUrl.trim() || null,
       });
+      clearDraft();
       onSuccess(organization);
     } catch (err) {
       const axiosError = err as AxiosError<{ error?: string }>;
@@ -143,6 +162,18 @@ export function CreateOrganizationForm({
             {slugError}
           </p>
         )}
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="create-org-logoUrl">{t("logoUrl")}</Label>
+        <Input
+          id="create-org-logoUrl"
+          type="url"
+          value={logoUrl}
+          onChange={(e) =>
+            setFormValues((prev) => ({ ...prev, logoUrl: e.target.value }))
+          }
+          placeholder="https://…"
+        />
       </div>
       <div className="flex justify-end gap-2">
         {onCancel && (

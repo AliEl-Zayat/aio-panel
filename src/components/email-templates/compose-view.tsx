@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { emailTemplateService } from "@/services/email-template.service";
 import { extractPlaceholderKeys, replacePlaceholders } from "@/lib/placeholder-utils";
+import { RenderedEmailBody } from "@/lib/email-body-render";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,9 +104,17 @@ export function ComposeView({ templateId }: ComposeViewProps) {
       </div>
       <div className="space-y-2">
         <Label>{t("bodyPreview")}</Label>
-        <p className="whitespace-pre-wrap rounded-md border bg-muted/50 px-3 py-2 text-sm">
-          {finalBody || "—"}
-        </p>
+        <div className="rounded-md border bg-muted/50 px-3 py-2 text-sm">
+          {template.body.trim() ? (
+            <RenderedEmailBody
+              body={template.body}
+              placeholderValues={values}
+              className="min-h-[2rem]"
+            />
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )}
+        </div>
       </div>
 
       {placeholderKeys.length > 0 && (

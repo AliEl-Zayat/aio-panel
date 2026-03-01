@@ -13,12 +13,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SegmentControl } from "@/components/ui/segment-control";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -297,7 +297,7 @@ export function ProjectsList() {
         </Card>
       )}
 
-      <Sheet
+      <Dialog
         open={createSheetOpen || !!editingProject}
         onOpenChange={(open) => {
           if (!open) {
@@ -306,13 +306,13 @@ export function ProjectsList() {
           }
         }}
       >
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>{createSheetOpen ? t("create") : t("edit")}</SheetTitle>
-            <SheetDescription>
+        <DialogContent className="overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{createSheetOpen ? t("create") : t("edit")}</DialogTitle>
+            <DialogDescription>
               {createSheetOpen ? t("createDescription") : t("editDescription")}
-            </SheetDescription>
-          </SheetHeader>
+            </DialogDescription>
+          </DialogHeader>
           {createSheetOpen && (
             <ProjectForm
               mode="create"
@@ -330,8 +330,8 @@ export function ProjectsList() {
               onCancel={() => setEditingProject(null)}
             />
           )}
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

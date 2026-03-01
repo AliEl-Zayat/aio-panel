@@ -19,6 +19,7 @@ export interface Organization {
   id: number;
   name: string;
   slug: string;
+  logoUrl?: string | null;
 }
 
 /** List item from GET /api/organizations (org fields + current user's role). */
@@ -53,6 +54,8 @@ export interface Project {
   slug: string;
   userId: number;
   organizationId: number | null;
+  logoUrl?: string | null;
+  previewImageUrl?: string | null;
 }
 
 // --- Knowledge area (companies + tasks) ---
@@ -62,7 +65,11 @@ export interface Company {
   id: number;
   name: string;
   slug: string;
+  logoUrl?: string | null;
 }
+
+/** Knowledge task status values from API. */
+export type KnowledgeTaskStatus = "TODO" | "IN_PROGRESS" | "DONE" | "BLOCKED";
 
 /** Knowledge task shape from GET/POST/PATCH /api/knowledge/tasks. */
 export interface KnowledgeTask {
@@ -72,6 +79,29 @@ export interface KnowledgeTask {
   companyId: number | null;
   organizationId: number | null;
   projectId: number | null;
+  status: KnowledgeTaskStatus;
+  order: number;
+  blockageReason: string | null;
+  company?: { id: number; name: string; slug: string } | null;
+  organization?: { id: number; name: string; slug: string } | null;
+  project?: { id: number; name: string; slug: string } | null;
+}
+
+/** Person shape from GET/POST/PATCH /api/knowledge/people. */
+export interface Person {
+  id: number;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  notes: string | null;
+  fcmToken: string | null;
+  userId: number;
+  companyId: number | null;
+  organizationId: number | null;
+  projectId: number | null;
+  createdAt: string;
+  updatedAt: string;
   company?: { id: number; name: string; slug: string } | null;
   organization?: { id: number; name: string; slug: string } | null;
   project?: { id: number; name: string; slug: string } | null;
@@ -109,4 +139,82 @@ export interface CommandSnippet {
   updatedAt: string;
   organization?: { id: number; name: string; slug: string } | null;
   project?: { id: number; name: string; slug: string } | null;
+}
+
+// --- Secret keys ---
+
+export type SecretKeyKind = "API_KEY" | "ENCRYPTION_KEY";
+
+/** Secret key shape from GET/POST/PATCH /api/secret-keys (metadata only; no value). */
+export interface SecretKey {
+  id: number;
+  name: string;
+  kind: SecretKeyKind;
+  hint: string | null;
+  userId: number;
+  organizationId: number | null;
+  projectId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  organization?: { id: number; name: string; slug: string } | null;
+  project?: { id: number; name: string; slug: string } | null;
+}
+
+export interface SecretKeyRevealResponse {
+  value: string;
+}
+
+// --- Secret accounts ---
+
+/** Secret account shape from GET/POST/PATCH /api/secret-accounts (metadata only; no password). */
+export interface SecretAccount {
+  id: number;
+  name: string;
+  service: string | null;
+  loginUrl: string | null;
+  username: string;
+  userId: number;
+  organizationId: number | null;
+  projectId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  organization?: { id: number; name: string; slug: string } | null;
+  project?: { id: number; name: string; slug: string } | null;
+}
+
+export interface SecretAccountRevealResponse {
+  password: string;
+}
+
+// --- Music Bookmarker ---
+
+export interface StreamingLink {
+  provider: string;
+  url: string;
+}
+
+/** Music track shape from GET/POST/PATCH /api/music/tracks. */
+export interface MusicTrack {
+  id: number;
+  userId: number;
+  title: string;
+  artist: string;
+  album: string | null;
+  coverUrl: string | null;
+  links: StreamingLink[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Music album shape from GET/POST/PATCH /api/music/albums. */
+export interface MusicAlbum {
+  id: number;
+  userId: number;
+  title: string;
+  artist: string | null;
+  coverUrl: string | null;
+  releaseYear: number | null;
+  links: StreamingLink[];
+  createdAt: string;
+  updatedAt: string;
 }

@@ -12,6 +12,7 @@ export interface UserPreferences {
   navbarBehavior: NavbarBehavior;
   sidebarStyle: SidebarStyle;
   sidebarCollapseMode: SidebarCollapseMode;
+  convertToLocaleCurrency: boolean;
 }
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
@@ -22,6 +23,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   navbarBehavior: "STICKY",
   sidebarStyle: "INSET",
   sidebarCollapseMode: "ICON",
+  convertToLocaleCurrency: false,
 };
 
 export type PatchPreferences = Partial<UserPreferences>;

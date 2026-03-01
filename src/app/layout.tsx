@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Inter,
+  Roboto,
+  Open_Sans,
+  Montserrat,
+  Noto_Sans,
+} from "next/font/google";
 import { Providers } from "./providers";
 import { IntlProvider } from "@/components/intl-provider";
 import { getLocaleAndMessages } from "@/lib/i18n-server";
@@ -15,6 +23,42 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const roboto = Roboto({
+  variable: "--font-roboto",
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+});
+
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
+  subsets: ["latin"],
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+});
+
+const notoSans = Noto_Sans({
+  variable: "--font-noto-sans",
+  subsets: ["latin"],
+});
+
+const fontClassNames = [
+  geistSans.variable,
+  geistMono.variable,
+  inter.variable,
+  roboto.variable,
+  openSans.variable,
+  montserrat.variable,
+  notoSans.variable,
+].join(" ");
 
 export const metadata: Metadata = {
   title: "AIO Panel",
@@ -37,7 +81,7 @@ export default async function RootLayout({
       suppressContentEditableWarning
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${fontClassNames} antialiased`}
         suppressHydrationWarning
         suppressContentEditableWarning
       >

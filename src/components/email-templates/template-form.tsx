@@ -7,6 +7,7 @@ import type { EmailTemplate, OrganizationMembership, Project } from "@/types/api
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { AxiosError } from "axios";
 
@@ -138,28 +139,28 @@ export function TemplateForm({
       </div>
       <div className="space-y-2">
         <Label htmlFor="template-body">{t("body")}</Label>
-        <textarea
+        <Textarea
           id="template-body"
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder={t("body")}
-          rows={6}
-          className={cn(
-            "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
-            "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:cursor-not-allowed disabled:opacity-50 resize-y"
-          )}
+          placeholder={t("bodyPlaceholder")}
+          rows={8}
+          className="min-h-[120px] resize-y font-mono text-sm"
         />
+        <p className="text-muted-foreground text-xs">
+          {t("bodyHint")}
+        </p>
       </div>
       {!isEdit && (
         <div className="space-y-2">
           <Label>{t("scope")}</Label>
           <div className="flex flex-wrap gap-4">
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 name="scope"
                 checked={scope === "personal"}
+                className="rounded-full border-input bg-background/80 backdrop-blur-sm"
                 onChange={() => {
                   setScope("personal");
                   setOrganizationId(null);
@@ -168,11 +169,12 @@ export function TemplateForm({
               />
               {t("scopePersonal")}
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 name="scope"
                 checked={scope === "org"}
+                className="rounded-full border-input bg-background/80 backdrop-blur-sm"
                 onChange={() => {
                   setScope("org");
                   setProjectId(null);
@@ -181,11 +183,12 @@ export function TemplateForm({
               />
               {t("scopeOrg")}
             </label>
-            <label className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 name="scope"
                 checked={scope === "project"}
+                className="rounded-full border-input bg-background/80 backdrop-blur-sm"
                 onChange={() => {
                   setScope("project");
                   setOrganizationId(null);
@@ -197,7 +200,7 @@ export function TemplateForm({
           </div>
           {scope === "org" && organizations.length > 0 && (
             <select
-              className="mt-2 w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="mt-2 w-full max-w-xs rounded-md border border-input bg-background/80 backdrop-blur-sm px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               value={organizationId ?? ""}
               onChange={(e) =>
                 setOrganizationId(e.target.value ? Number(e.target.value) : null)
@@ -212,7 +215,7 @@ export function TemplateForm({
           )}
           {scope === "project" && projects.length > 0 && (
             <select
-              className="mt-2 w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="mt-2 w-full max-w-xs rounded-md border border-input bg-background/80 backdrop-blur-sm px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               value={projectId ?? ""}
               onChange={(e) =>
                 setProjectId(e.target.value ? Number(e.target.value) : null)

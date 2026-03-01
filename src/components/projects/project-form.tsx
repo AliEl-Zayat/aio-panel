@@ -4,12 +4,21 @@ import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { AxiosError } from "axios";
 import { projectService } from "@/services/project.service";
+import { usePersistedFormState } from "@/hooks/use-persisted-form-state";
 import type { Project, OrganizationMembership } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const NAME_MAX_LENGTH = 200;
+
+interface ProjectFormValues {
+  name: string;
+  slug: string;
+  organizationId: string;
+  logoUrl: string;
+  previewImageUrl: string;
+}
 const SLUG_MAX_LENGTH = 100;
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -40,11 +49,42 @@ function getInitialOrganizationId(props: ProjectFormProps): string {
   return id === null ? "personal" : String(id);
 }
 
+function getDefaultProjectFormValues(props: ProjectFormProps): ProjectFormValues {
+  if (props.mode === "edit") {
+    const p = props.project;
+    return {
+      name: p.name,
+      slug: p.slug,
+      organizationId: "personal",
+      logoUrl: p.logoUrl ?? "",
+      previewImageUrl: p.previewImageUrl ?? "",
+    };
+  }
+  return {
+    name: "",
+    slug: "",
+    organizationId: getInitialOrganizationId(props),
+    logoUrl: "",
+    previewImageUrl: "",
+  };
+}
+
 export function ProjectForm(props: ProjectFormProps) {
   const t = useTranslations("projects");
   const tCommon = useTranslations("common");
   const tOrgs = useTranslations("organizations");
   const isCreate = props.mode === "create";
+  const defaultValues = getDefaultProjectFormValues(props);
+  const storageKey =
+    props.mode === "create"
+      ? "form-draft:project:create"
+      : `form-draft:project:edit:${props.project.id}`;
+  const [formValues, setFormValues, clearDraft] = usePersistedFormState(
+    storageKey,
+    defaultValues,
+    { debounceMs: 400 }
+  );
+  const { name, slug, organizationId, logoUrl, previewImageUrl } = formValues;
 
   const validateName = useCallback(
     (value: string): string | null => {
@@ -67,11 +107,6 @@ export function ProjectForm(props: ProjectFormProps) {
     [tCommon, t]
   );
 
-  const [name, setName] = useState(isCreate ? "" : props.project.name);
-  const [slug, setSlug] = useState(isCreate ? "" : props.project.slug);
-  const [organizationId, setOrganizationId] = useState<string>(
-    getInitialOrganizationId(props)
-  );
   const [nameError, setNameError] = useState<string | null>(null);
   const [slugError, setSlugError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -98,13 +133,18 @@ export function ProjectForm(props: ProjectFormProps) {
             organizationId === "personal"
               ? undefined
               : Number.parseInt(organizationId, 10),
+          logoUrl: logoUrl.trim() || null,
+          previewImageUrl: previewImageUrl.trim() || null,
         });
       } else {
         await projectService.update(props.project.id, {
           name: trimmedName,
           slug: trimmedSlug,
+          logoUrl: logoUrl.trim() || null,
+          previewImageUrl: previewImageUrl.trim() || null,
         });
       }
+      clearDraft();
       props.onSuccess();
     } catch (err) {
       const axiosError = err as AxiosError<{ error?: string }>;
@@ -142,7 +182,12 @@ export function ProjectForm(props: ProjectFormProps) {
           <select
             id={`${formId}-organization`}
             value={organizationId}
-            onChange={(e) => setOrganizationId(e.target.value)}
+            onChange={(e) =>
+              setFormValues((prev) => ({
+                ...prev,
+                organizationId: e.target.value,
+              }))
+            }
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             aria-describedby={`${formId}-organization-description`}
           >
@@ -165,9 +210,10 @@ export function ProjectForm(props: ProjectFormProps) {
           id={`${formId}-name`}
           value={name}
           onChange={(e) => {
+            const v = e.target.value;
             setSubmitError(null);
-            setName(e.target.value);
-            setNameError(validateName(e.target.value));
+            setFormValues((prev) => ({ ...prev, name: v }));
+            setNameError(validateName(v));
           }}
           placeholder="My project"
           maxLength={NAME_MAX_LENGTH}
@@ -190,7 +236,7 @@ export function ProjectForm(props: ProjectFormProps) {
           onChange={(e) => {
             setSubmitError(null);
             const value = normalizeSlugInput(e.target.value);
-            setSlug(value);
+            setFormValues((prev) => ({ ...prev, slug: value }));
             setSlugError(validateSlug(value));
           }}
           placeholder="my-project"
@@ -204,6 +250,34 @@ export function ProjectForm(props: ProjectFormProps) {
             {slugError}
           </p>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`${formId}-logoUrl`}>{t("logoUrl")}</Label>
+        <Input
+          id={`${formId}-logoUrl`}
+          type="url"
+          value={logoUrl}
+          onChange={(e) =>
+            setFormValues((prev) => ({ ...prev, logoUrl: e.target.value }))
+          }
+          placeholder="https://…"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor={`${formId}-previewImageUrl`}>{t("previewImageUrl")}</Label>
+        <Input
+          id={`${formId}-previewImageUrl`}
+          type="url"
+          value={previewImageUrl}
+          onChange={(e) =>
+            setFormValues((prev) => ({
+              ...prev,
+              previewImageUrl: e.target.value,
+            }))
+          }
+          placeholder="https://…"
+        />
       </div>
 
       <div className="flex justify-end gap-2">

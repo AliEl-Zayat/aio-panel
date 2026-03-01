@@ -11,12 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -549,29 +549,29 @@ export function OrgProjectsTab({
         </div>
       )}
 
-      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>{t("orgSheetTitle")}</SheetTitle>
-            <SheetDescription>{t("orgSheetDescription")}</SheetDescription>
-          </SheetHeader>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{t("orgSheetTitle")}</DialogTitle>
+            <DialogDescription>{t("orgSheetDescription")}</DialogDescription>
+          </DialogHeader>
           <CreateProjectForm
             organizationId={organizationId}
             onSuccess={handleCreateSuccess}
             onCancel={() => setCreateOpen(false)}
           />
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
 
-      <Sheet
+      <Dialog
         open={!!editingProject}
         onOpenChange={(open) => !open && setEditingProject(null)}
       >
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>{t("editSheetTitle")}</SheetTitle>
-            <SheetDescription>{t("editSheetDescription")}</SheetDescription>
-          </SheetHeader>
+        <DialogContent className="overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{t("editSheetTitle")}</DialogTitle>
+            <DialogDescription>{t("editSheetDescription")}</DialogDescription>
+          </DialogHeader>
           {editingProject && (
             <EditProjectForm
               project={editingProject}
@@ -579,8 +579,8 @@ export function OrgProjectsTab({
               onCancel={() => setEditingProject(null)}
             />
           )}
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

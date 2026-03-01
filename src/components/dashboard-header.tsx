@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { usePreferences } from "@/hooks/use-preferences";
 import { cn } from "@/lib/utils";
 
 export function DashboardHeader({
@@ -16,13 +15,10 @@ export function DashboardHeader({
   children?: React.ReactNode;
 }>) {
   const t = useTranslations("dashboard");
-  const { preferences } = usePreferences();
-  const isSticky = preferences.navbarBehavior === "STICKY";
   return (
     <header
       className={cn(
-        "flex h-14 shrink-0 items-center gap-2 border-b px-4 bg-transparent",
-        isSticky && "sticky top-0 z-10",
+        "flex h-14 shrink-0 items-center gap-2 border-b border-border/40 px-4 bg-background/80 backdrop-blur-sm sticky top-0 z-10",
         className
       )}
     >
